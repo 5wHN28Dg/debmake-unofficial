@@ -142,13 +142,13 @@ def guess_vcsvcs(vcsvcs):
         return "#Vcs-Git"
     elif re.search(r"\.hg$", vcsvcs):
         return "#Vcs-Hg"
-    elif re.search("^:pserver:", vcsvcs):
+    elif re.search(r"^:pserver:", vcsvcs):
         # CVS :pserver:anonymous@anonscm.debian.org:/cvs/webwml
         return "#Vcs-Cvs"
-    elif re.search("^:ext:", vcsvcs):
+    elif re.search(r"^:ext:", vcsvcs):
         # CVS :ext:username@cvs.debian.org:/cvs/webwml
         return "#Vcs-Cvs"
-    elif re.search("^svn[:+]", vcsvcs):
+    elif re.search(r"^svn[:+]", vcsvcs):
         # SVN svn://svn.debian.org/ddp/manuals/trunk manuals
         # SVN svn+ssh://svn.debian.org/svn/ddp/manuals/trunk
         return "#Vcs-Svn"
@@ -162,13 +162,13 @@ def guess_vcsbrowser(vcsbrowser):
         return "#Vcs-Browser"
     elif re.search(r"\.hg$", vcsbrowser):
         return "#Vcs-Browser"
-    elif re.search("^:pserver:", vcsbrowser):
+    elif re.search(r"^:pserver:", vcsbrowser):
         # CVS :pserver:anonymous@anonscm.debian.org:/cvs/webwml
         return "#Vcs-Browser"
-    elif re.search("^:ext:", vcsbrowser):
+    elif re.search(r"^:ext:", vcsbrowser):
         # CVS :ext:username@cvs.debian.org:/cvs/webwml
         return "#Vcs-Browser"
-    elif re.search("^svn[:+]", vcsbrowser):
+    elif re.search(r"^svn[:+]", vcsbrowser):
         # SVN svn://svn.debian.org/ddp/manuals/trunk manuals
         # SVN svn+ssh://svn.debian.org/svn/ddp/manuals/trunk
         return "#Vcs-Browser"

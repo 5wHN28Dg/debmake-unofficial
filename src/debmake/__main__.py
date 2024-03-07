@@ -270,7 +270,7 @@ def main():
         if len(para["debs"]) == 1:
             bpackage = para["debs"][0]["package"]
             command = (
-                "LANG=C; find debian/"
+                r"LANG=C; find debian/"
                 + bpackage
                 + r' -type f 2>&1 | sed -e "s/^debian\/'
                 + bpackage
