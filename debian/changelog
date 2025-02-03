@@ -180,7 +180,7 @@ debmake (4.2.5-1) unstable; urgency=medium
 
   * Sort copyright by name.
   * Require LICENSE files to be real file.  Closes: #819054
-  * Prety print .FULL_LICENSE test output of copyright.py.
+  * Pretty print .FULL_LICENSE test output of copyright.py.
   * Fix slow regex for year/name split in the copyright line.
   * Drop consecutive blank lines.
   * Refine copyright and license extractor.
@@ -211,7 +211,7 @@ debmake (4.2.3-1) unstable; urgency=medium
 debmake (4.2.2-1) unstable; urgency=medium
 
   * Typo fix: Closes: #793654
-  * Do not exclude files agressively with "rsync -C".
+  * Do not exclude files aggressively with "rsync -C".
 
  -- Osamu Aoki <osamu@debian.org>  Fri, 14 Aug 2015 19:21:43 +0000
 
@@ -253,7 +253,7 @@ debmake (4.1.7-2) unstable; urgency=medium
   * Add sanity check for copyright lines. Closes: #767666
   * Update template for autogen.sh. Closes: #771920
   * Work around os.getlogin. Closes: #769392
-  * Update documentstion. Closes: #769392
+  * Update documentation. Closes: #769392
 
  -- Osamu Aoki <osamu@debian.org>  Thu, 04 Dec 2014 00:01:00 +0900
 
@@ -357,7 +357,7 @@ debmake (4.0.9-1) unstable; urgency=medium
 
 debmake (4.0.8-1) unstable; urgency=medium
 
-  * Update dependency huristics and --with.  python2 is set
+  * Update dependency heuristics and --with.  python2 is set
     only for compat < 9.
   * Improve upstream tarball handling to make -a to work with
     foo-1.0.orig.tar.gz
@@ -381,7 +381,7 @@ debmake (4.0.7-1) unstable; urgency=medium
 
 debmake (4.0.6-1) unstable; urgency=medium
 
-  * Relax upstream version huristics on the parent directory.
+  * Relax upstream version heuristics on the parent directory.
 
  -- Osamu Aoki <osamu@debian.org>  Sun, 26 Jan 2014 00:21:49 +0900
 

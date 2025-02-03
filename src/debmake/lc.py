@@ -826,7 +826,7 @@ list_main += [("MPL", "VARIANT1", regex(r_MPL1), ["version"])]
 list_main += [("MPL", "VARIANT2-INCOMPATIBLE", regex(r_MPL2), ["version"])]
 list_main += [("MPL", "VARIANT3", regex(r_MPL3), ["version"])]
 ###############################################################################
-# PERMISSIVE license from GNU releted sources
+# PERMISSIVE license from GNU related sources
 ###############################################################################
 # GNU All-Permissive License
 r_PM0 = pattern(

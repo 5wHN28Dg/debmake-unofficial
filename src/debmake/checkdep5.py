@@ -1245,7 +1245,7 @@ re_autofiles = re.compile(
         ^libltdl/.*$| # Autotools
         ^libtool$| # Autotools
         ^py-compile$| # Autotools
-        ^po/Makefile$| # Autotools (getttext)
+        ^po/Makefile$| # Autotools (gettext)
         ^po/Makefile\.in$| # Autotools (gettext)
         ^po/Makefile\.in\.in$| # Autotools (gettext)
         ^po/Makevars$| # Autotools (gettext)
