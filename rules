@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+# uncomment to enable verbose mode for debhelper
+#DH_VERBOSE = 1
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+override_dh_auto_test:
+	cd test/src ; make
+endif
+
+override_dh_auto_install:
+	dh_auto_install --destdir debian/debmake
+	# These are not for general use (for debug only)
+	mkdir -p debian/debmake/usr/lib/debmake
+	mv debian/debmake/usr/bin/debmake-lc debian/debmake/usr/lib/debmake/debmake-lc
+	mv debian/debmake/usr/bin/debmake-dep5 debian/debmake/usr/lib/debmake/debmake-dep-5
