@@ -1,0 +1,98 @@
+The Debian packaging of debmake is maintained in git, using the merging
+workflow described in dgit-maint-merge(7).  There isn't a patch queue that can
+be represented as a quilt series.
+
+Please see https://salsa.debian.org/debian/debmake (main branch)
+
+--- debmake-4.5.1.orig/manpages/debmake.1
++++ debmake-4.5.1/manpages/debmake.1
+@@ -329,7 +329,7 @@ set the binary package specs by a comma
+ .  sp -1
+ .  IP \(bu 2.3
+ .\}
+-\fBscript\fP: Shell and other interpretted language script package (all, foreign) (alias: \fBsh\fP)
++\fBscript\fP: Shell and other interpreted language script package (all, foreign) (alias: \fBsh\fP)
+ .RE
+ .sp
+ The pair values in the parentheses, such as (any, foreign), are the \fBArchitecture\fP and \fBMulti\-Arch\fP stanza values set in the \fBdebian/control\fP file.  In many cases, the \fBdebmake\fP command makes good guesses for \fItype\fP from \fIbinarypackage\fP.  If \fItype\fP is not obvious, \fItype\fP is set to \fBbin\fP.
+--- debmake-4.5.1.orig/src/debmake/checkdep5.py
++++ debmake-4.5.1/src/debmake/checkdep5.py
+@@ -1245,7 +1245,7 @@ re_autofiles = re.compile(
+         ^libltdl/.*$| # Autotools
+         ^libtool$| # Autotools
+         ^py-compile$| # Autotools
+-        ^po/Makefile$| # Autotools (getttext)
++        ^po/Makefile$| # Autotools (gettext)
+         ^po/Makefile\.in$| # Autotools (gettext)
+         ^po/Makefile\.in\.in$| # Autotools (gettext)
+         ^po/Makevars$| # Autotools (gettext)
+--- debmake-4.5.1.orig/src/debmake/data/extra1_gbp.conf.txt
++++ debmake-4.5.1/src/debmake/data/extra1_gbp.conf.txt
+@@ -1,10 +1,23 @@
+ # You must remove unused comment lines for the released package.
+ ### See gbp.conf(5) provided by git-buildpackage package
+-###
+-### Even if you don't use gbp-buildpackage command and its workflow, this may be
+-### useful for gbp-dch command by setting debian-branch.
+ 
+ ###[DEFAULT]
+-###debian-branch = main
+-###debian-tag = %(version)s
+-###export-dir = ../build-area
++#### DEP-14 format
++###debian-branch = debian/latest
++###upstream-branch = upstream/latest
++#### Always use pristine tar in projects that use source tarball imports
++###pristine-tar = True
++
++#### Configure the upstream tag format below, so that `gbp import-orig` will run
++#### correctly, and link tarball import branch (`upstream/latest`) with the
++#### equivalent upstream release tag, showing a complete audit trail of what
++#### upstream released and what was imported into Debian.
++###upstream-vcs-tag = %(version%~%.)s
++
++#### If upstream publishes tarball signatures, git-buildpackage will by default
++#### import and use the them. Change this to 'on' to make 'gbp import-orig' abort
++#### if the signature is not found or is not valid.
++####upstream-signatures = on
++
++#### Ensure the Debian maintainer signs git tags automatically
++###sign-tags = True
+--- debmake-4.5.1.orig/src/debmake/data/extra3_manpage.1.txt
++++ debmake-4.5.1/src/debmake/data/extra3_manpage.1.txt
+@@ -14,7 +14,7 @@
+ .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+ .\" other parameters are allowed: see man(7), man(1)
+ .\"
+-.\" Easier way to make an initial manpage for commans is the use of help2man
++.\" Easier way to make an initial manpage for commands is the use of help2man
+ .\" command provided by help2man package while using this file as an tutorial
+ .\" to understand what was created or to make touch-up edits.
+ .\"
+--- debmake-4.5.1.orig/src/debmake/lc.py
++++ debmake-4.5.1/src/debmake/lc.py
+@@ -826,7 +826,7 @@ list_main += [("MPL", "VARIANT1", regex(
+ list_main += [("MPL", "VARIANT2-INCOMPATIBLE", regex(r_MPL2), ["version"])]
+ list_main += [("MPL", "VARIANT3", regex(r_MPL3), ["version"])]
+ ###############################################################################
+-# PERMISSIVE license from GNU releted sources
++# PERMISSIVE license from GNU related sources
+ ###############################################################################
+ # GNU All-Permissive License
+ r_PM0 = pattern(
+--- debmake-4.5.1.orig/src/debmake/scanfiles.py
++++ debmake-4.5.1/src/debmake/scanfiles.py
+@@ -194,11 +194,11 @@ def get_all_files():
+                     huge_files.append(filepath)
+                 else:  # type_of_file == 1 Text
+                     nonlink_files.append(filepath)
+-        # do not decend to VCS dirs
++        # do not descend to VCS dirs
+         for vcs in ["CVS", ".svn", ".pc", ".git", ".hg", ".bzr"]:
+             if vcs in subdirs:
+                 subdirs.remove(vcs)  # skip VCS
+-        # do not decend to symlink dirs
++        # do not descend to symlink dirs
+         symlinks = []
+         for subdir in subdirs:
+             dirpath = os.path.join(dir, subdir)
