@@ -14,7 +14,7 @@
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
 .\"
-.\" Easier way to make an initial manpage for commans is the use of help2man
+.\" Easier way to make an initial manpage for commands is the use of help2man
 .\" command provided by help2man package while using this file as an tutorial
 .\" to understand what was created or to make touch-up edits.
 .\"
