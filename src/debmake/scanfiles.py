@@ -194,11 +194,11 @@ def get_all_files():
                     huge_files.append(filepath)
                 else:  # type_of_file == 1 Text
                     nonlink_files.append(filepath)
-        # do not decend to VCS dirs
+        # do not descend to VCS dirs
         for vcs in ["CVS", ".svn", ".pc", ".git", ".hg", ".bzr"]:
             if vcs in subdirs:
                 subdirs.remove(vcs)  # skip VCS
-        # do not decend to symlink dirs
+        # do not descend to symlink dirs
         symlinks = []
         for subdir in subdirs:
             dirpath = os.path.join(dir, subdir)
