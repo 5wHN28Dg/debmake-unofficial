@@ -1,3 +1,18 @@
+debmake (4.5.1-2) unstable; urgency=medium
+
+  * Team upload.
+
+  [ Otto Kekäläinen ]
+  * Improve the gbp.conf template
+
+  [ Andrew Kreimer ]
+  * Fix typos
+
+  [ Agustin Martin ]
+  * Build-Depend on python3-setuptools (Closes: #1100208)
+
+ -- Chris Hofstaedtler <zeha@debian.org>  Thu, 10 Apr 2025 13:36:47 +0200
+
 debmake (4.5.1-1) unstable; urgency=medium
 
   * Use "wrap-and-sort -vast" in debmake
