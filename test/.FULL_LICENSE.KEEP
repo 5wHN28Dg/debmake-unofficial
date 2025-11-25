@@ -389,9 +389,6 @@ License:   BSD-3-Clause:GENERIC(name:name=THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  Specifications v.2.0 and later (together the "UEFI Specifications");
  only as necessary to emulate an implementation of the UEFI Specifications;
  and to create firmware, applications, utilities and/or drivers.
- .
- On Debian systems, the complete text of the BSD 3-clause "New" or "Revised"
- License can be found in `/usr/share/common-licenses/BSD'.
 
 Files:     @intel-efi1.txt
 Copyright: 2007-2011 Intel Corporation.
