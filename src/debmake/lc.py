@@ -1446,7 +1446,6 @@ re_LICENSE_GNU = regex(
 licensefiles = {
     "Apache-2.0": ("Apache-2.0", "Apache License Version 2.0\n "),
     "Artistic": ("Artistic", '"Artistic License"\n '),
-    "BSD-3-Clause": ("BSD", 'BSD 3-clause "New" or "Revised"\n License'),
     "GFDL-1.2": ("GFDL-1.2", "GNU Free Documentation License\n Version 1.2"),
     "GFDL-1.2+": ("GFDL-1.2", "GNU Free Documentation License\n Version 1.2"),
     "GFDL-1.3": ("GFDL-1.3", "GNU Free Documentation License\n Version 1.3"),

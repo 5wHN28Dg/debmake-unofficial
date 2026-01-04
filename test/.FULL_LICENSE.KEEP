@@ -389,9 +389,6 @@ License:   BSD-3-Clause:GENERIC(name:name=THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  Specifications v.2.0 and later (together the "UEFI Specifications");
  only as necessary to emulate an implementation of the UEFI Specifications;
  and to create firmware, applications, utilities and/or drivers.
- .
- On Debian systems, the complete text of the BSD 3-clause "New" or "Revised"
- License can be found in `/usr/share/common-licenses/BSD'.
 
 Files:     @intel-efi1.txt
 Copyright: 2007-2011 Intel Corporation.
@@ -430,9 +427,6 @@ License:   BSD-3-Clause:GENERIC(name:name=THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  and/or write to a file system that is directly managed by an
  Extensible Firmware Interface (EFI) implementation or by an emulator
  of an EFI implementation.
- .
- On Debian systems, the complete text of the BSD 3-clause "New" or "Revised"
- License can be found in `/usr/share/common-licenses/BSD'.
 
 Files:     @intel-efi2.txt
 Copyright: 2006-2010 Intel Corporation.
@@ -1693,9 +1687,6 @@ License:   BSD-3-Clause:EXACT(:name=THE COPYRIGHT HOLDERS AND CONTRIBUTORS)
  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- .
- On Debian systems, the complete text of the BSD 3-clause "New" or "Revised"
- License can be found in `/usr/share/common-licenses/BSD'.
 
 Files:     BSD-4-Clause-UC.txt
 Copyright: 1960-2020 The Regents of the University of California. All rights reserved.
@@ -6942,9 +6933,6 @@ License:   BSD-3-Clause:GENERIC(name:name=THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
- .
- On Debian systems, the complete text of the BSD 3-clause "New" or "Revised"
- License can be found in `/usr/share/common-licenses/BSD'.
 
 Files:     mit_027.txt
 Copyright: 1992 Vrije Universiteit, The Netherlands
@@ -7749,9 +7737,6 @@ License:   BSD-3-Clause:GENERIC(name:name=THE AUTHOR)
  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- .
- On Debian systems, the complete text of the BSD 3-clause "New" or "Revised"
- License can be found in `/usr/share/common-licenses/BSD'.
 
 Files:     mit_062.txt
 Copyright: 2005 Bogdan D. bogdand@users.sourceforge.net
@@ -8099,7 +8084,4 @@ License:   BSD-3-Clause:GENERIC(name:name=THE REGENTS AND CONTRIBUTORS)
  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  SUCH DAMAGE.
- .
- On Debian systems, the complete text of the BSD 3-clause "New" or "Revised"
- License can be found in `/usr/share/common-licenses/BSD'.
 
