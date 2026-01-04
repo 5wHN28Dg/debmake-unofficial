@@ -1,3 +1,20 @@
+debmake (4.5.2) unstable; urgency=medium
+
+  [ Loren M. Lang ]
+  * Fix escape sequences for Python 3.12 (Closes: #1065590)
+  * Added config for git-buildpackage to use correct branches
+
+  [ Otto Kekäläinen ]
+  * Extend the gbp.conf example to be more complete at default level
+
+  [ Osamu Aoki ]
+  * Fix project.license
+  * Use /usr/lib/debmake/debmake-dep5 as filename
+  * Convert to native package
+  * Update lintian overrides
+
+ -- Osamu Aoki <osamu@debian.org>  Sun, 04 Jan 2026 22:43:03 +0900
+
 debmake (4.5.1-2) unstable; urgency=medium
 
   * Team upload.
