@@ -1,3 +1,10 @@
+debmake (4.5.3) unstable; urgency=medium
+
+  [ Bastian Germann ]
+  * Drop deprecated BSD license reference (Closes: #1121378)
+
+ -- Osamu Aoki <osamu@debian.org>  Tue, 06 Jan 2026 13:56:36 +0900
+
 debmake (4.5.2) unstable; urgency=medium
 
   [ Loren M. Lang ]
