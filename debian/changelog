@@ -1,3 +1,9 @@
+debmake (4.5.4) unstable; urgency=medium
+
+  * update d/upstream/metadata (Closes: #1092184)
+
+ -- Osamu Aoki <osamu@debian.org>  Fri, 09 Jan 2026 21:01:39 +0900
+
 debmake (4.5.3) unstable; urgency=medium
 
   [ Bastian Germann ]
