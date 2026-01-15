@@ -166,7 +166,7 @@ def debs(binaryspec, package, monoarch, dh_with):
                 a = "all"
                 m = "foreign"
                 t = "perl"
-            elif match_prefix(t, "py"): # python3 python py py3
+            elif match_prefix(t, "py"):  # python3 python py py3
                 a = "all"
                 m = "foreign"
                 t = "python3"

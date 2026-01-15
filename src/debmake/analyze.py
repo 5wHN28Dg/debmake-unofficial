@@ -26,11 +26,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import glob
 import os
 import re
-import sys
 import subprocess
+import sys
+
+import debmake.checkdep5
 import debmake.grep
 import debmake.read
-import debmake.checkdep5
 import debmake.scanfiles
 import debmake.yn
 

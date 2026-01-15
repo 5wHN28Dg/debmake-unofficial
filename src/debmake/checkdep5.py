@@ -28,6 +28,7 @@ import operator
 import os
 import re
 import sys
+
 import debmake
 import debmake.debug
 import debmake.lc
@@ -783,10 +784,10 @@ def analyze_copyright(copyright_lines, file, utf8=True, pedantic=False):
         if not utf8:
             n_non_ascii = len_non_ascii(copyright_line)
             if (n_copyright * MAX_NON_ASCII) < n_non_ascii:
-                copyright_lines[
-                    i
-                ] = "__MANY_NON_ASCII__({}chars. over {}chars.) in: {}[{}]".format(
-                    n_non_ascii, n_copyright, file, i
+                copyright_lines[i] = (
+                    "__MANY_NON_ASCII__({}chars. over {}chars.) in: {}[{}]".format(
+                        n_non_ascii, n_copyright, file, i
+                    )
                 )
     copyright_data = {}
     for copyright_line in copyright_lines:
@@ -864,16 +865,16 @@ def clean_license(license_lines, file, utf8=True):
             if (n_license * MAX_NON_ASCII) < n_non_ascii:
                 bad_lines = bad_lines + 1
                 if bad_lines < MAX_BAD_LINES:
-                    license_lines[
-                        i
-                    ] = "_MANY_NON_ASCII_({}chars. over {}chars.) starting with: {}".format(
-                        n_non_ascii, n_license, license_line[0:NORMAL_LINE_LENGTH]
+                    license_lines[i] = (
+                        "_MANY_NON_ASCII_({}chars. over {}chars.) starting with: {}".format(
+                            n_non_ascii, n_license, license_line[0:NORMAL_LINE_LENGTH]
+                        )
                     )
                 else:
-                    license_lines[
-                        i
-                    ] = "_MANY_NON_ASCII_({}chars. over {}chars.) ... truncated.".format(
-                        n_non_ascii, n_license
+                    license_lines[i] = (
+                        "_MANY_NON_ASCII_({}chars. over {}chars.) ... truncated.".format(
+                            n_non_ascii, n_license
+                        )
                     )
                     license_lines = license_lines[0 : i + 1]
                     break

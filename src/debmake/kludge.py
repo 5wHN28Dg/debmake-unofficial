@@ -29,8 +29,9 @@ import operator
 import os
 import re
 import sys
-import debmake.debug
+
 import debmake.checkdep5
+import debmake.debug
 import debmake.scanfiles
 
 re_round0 = re.compile(r"\.0")

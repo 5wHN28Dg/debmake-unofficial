@@ -26,8 +26,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import argparse
 import os
 import pwd
-import debmake.read
+
 import debmake.debug
+import debmake.read
 
 
 ###########################################################################

@@ -26,11 +26,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 import subprocess
 import sys
+
 import debmake.cat
 import debmake.control
 import debmake.copyright
-import debmake.sed
 import debmake.read
+import debmake.sed
 
 
 #######################################################################
@@ -269,7 +270,7 @@ def debian(para):
                     para["data_path"] + "extra1" + type + "_",
                     "debian/",
                     substlist,
-                    deb["package"], # use binpackage name
+                    deb["package"],  # use binpackage name
                     tutorial=para["tutorial"],
                 )
                 # TODO: dh_installdoc files if needed for the first binpackage
@@ -279,7 +280,7 @@ def debian(para):
                         para["data_path"] + "extra1" + type + "_",
                         "debian/",
                         substlist,
-                        deb["package"], # use binpackage name
+                        deb["package"],  # use binpackage name
                         tutorial=para["tutorial"],
                     )
     ###################################################################
@@ -361,7 +362,7 @@ def debian(para):
     command = "wrap-and-sort -vast"
     print("I: $ {}".format(command), file=sys.stderr)
     if subprocess.call(command, shell=True) != 0:
-        print("E: failed to run \"wrap-and-sort -vast\".", file=sys.stderr)
+        print('E: failed to run "wrap-and-sort -vast".', file=sys.stderr)
         exit(1)
     print(
         "I: $ {} complete.  Now, debian/* may have a blank line at the top.".format(
