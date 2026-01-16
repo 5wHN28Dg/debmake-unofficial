@@ -24,15 +24,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import glob
+import itertools
 import os
 import re
 import subprocess
 import sys
 
-import debmake.checkdep5
 import debmake.grep
-import debmake.read
-import debmake.scanfiles
+import debmake.scanext
 import debmake.yn
 
 ###########################################################################
@@ -55,40 +54,40 @@ def masterdev(name):
 
 
 ###########################################################################
-# popular: warn binary dependency etc. if they are top 3 popular files
+# check_popular_ext_type: warn binary dependency (popular extension match)
 ###########################################################################
-def popular(exttype, msg, debs, extcountlist, yes):
-    n = 3  # check files with the top 3 popular extension types
-    if exttype in dict(extcountlist[0:n]).keys():
-        settype = False
-        for deb in debs:
+def check_popular_ext_type(ext_type, msg, para):
+    n_max_files = 3  # check files with the top 3 popular extension types
+    if ext_type in itertools.islice(para["ext_type_counter"].keys(), 0, n_max_files):
+        ext_type_found = False
+        for deb in para["debs"]:
             type = deb["type"]  # -b (python3 also reports python)
-            if type == exttype:
-                settype = True
+            if type == ext_type:
+                ext_type_found = True
                 break
-            if exttype == "python3" and type == "python3":
-                settype = True
+            if ext_type == "python3" and type == "python3":
+                ext_type_found = True
                 break
-            if exttype == "javascript" and type == "nodejs":
-                settype = True
+            if ext_type == "javascript" and type == "nodejs":
+                ext_type_found = True
                 break
-        if not settype:
+        if not ext_type_found:
             print(
                 'W: many ext = "{}" type extension programs without matching -b set.'.format(
-                    exttype
+                    ext_type
                 ),
                 file=sys.stderr,
             )
-            debmake.yn.yn(msg, "", yes)
+            debmake.yn.yn(msg, "", para["yes"])
     return
 
 
 ###########################################################################
 # description: read from the upstream packaging system
 ###########################################################################
-def description(type, data_path):
+def description(type, para):
     text = ""
-    command = data_path + type + ".short.sh"
+    command = para["data_path"] + type + ".short.sh"
     p = subprocess.Popen(
         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
     )
@@ -104,9 +103,9 @@ def description(type, data_path):
 ###########################################################################
 # description_long: read from the upstream packaging system
 ###########################################################################
-def description_long(type, data_path):
+def description_long(type, para):
     text = ""
-    command = data_path + type + ".long.sh"
+    command = para["data_path"] + type + ".long.sh"
     p = subprocess.Popen(
         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
     )
@@ -361,9 +360,9 @@ def analyze(para):
         para["build_depends"].update({"python3-all", "pybuild-plugin-pyproject"})
         if para["spec"]:
             if para["desc"] == "":
-                para["desc"] = description("python3", para["data_path"])
+                para["desc"] = description("python3", para)
             if para["desc_long"] == "":
-                para["desc_long"] = description_long("python3", para["data_path"])
+                para["desc_long"] = description_long("python3", para)
         if debmake.grep.grep("setup.py", "python3", 0, 1) or debmake.grep.grep(
             "setup.py", "python", 0, 1
         ):
@@ -463,42 +462,24 @@ def analyze(para):
     # high priority spec source, first
     if para["spec"]:
         if para["desc"] == "" and os.path.isfile("META.yml"):
-            para["desc"] = description("META.yml", para["data_path"])
+            para["desc"] = description("META.yml", para)
         if para["desc"] == "" and os.path.isfile("Rakefile"):
-            para["desc"] = description("Rakefile", para["data_path"])
+            para["desc"] = description("Rakefile", para)
         if para["desc"] == "" and spec:
-            para["desc"] = description("spec", para["data_path"])
+            para["desc"] = description("spec", para)
         if para["desc_long"] == "" and spec:
-            para["desc_long"] = description_long("spec", para["data_path"])
+            para["desc_long"] = description_long("spec", para)
     #######################################################################
-    # analyze copyright+license content + file extensions
-    # copyright, control: build/binary dependency, rules export/override
+    # analyze file extensions
     #######################################################################
-    print(
-        "I: scan source for copyright+license text and file extensions", file=sys.stderr
-    )
-    (
-        para["nonlink_files"],
-        para["xml_html_files"],
-        para["binary_files"],
-        para["huge_files"],
-        para["extcount"],
-        para["extcountlist"],
-    ) = debmake.scanfiles.scanfiles()
-    # skip slow license+copyright check if debian/copyright exists
-    if os.path.isfile("debian/copyright"):
-        para["cdata"] = []
-    else:
-        para["cdata"] = debmake.checkdep5.checkdep5(
-            para["nonlink_files"], mode=2, pedantic=para["pedantic"]
-        )
+    para["ext_type_counter"] = debmake.scanext.scanext()
     #######################################################################
     # compiler: set build dependency etc. if they are used
-    if "c" in para["extcount"].keys():
+    if "c" in para["ext_type_counter"].keys():
         para["export"].update({"compiler"})
         if setmultiarch and para["build_type"][0:9] != "Autotools":
             para["override"].update({"multiarch"})
-    if "java" in para["extcount"].keys():
+    if "java" in para["ext_type_counter"].keys():
         if para["build_type"][0:4] != "Java":
             # Non-ant build system
             if para["build_type"]:
@@ -516,7 +497,7 @@ def analyze(para):
             "W: Java support is not perfect. (/usr/share/doc/javahelper/tutorials.html)",
             file=sys.stderr,
         )
-    if "vala" in para["extcount"].keys():
+    if "vala" in para["ext_type_counter"].keys():
         para["build_type"] = "Vala"
         para["build_depends"].update({"valac"})
         para["export"].update({"vala", "compiler"})
@@ -531,36 +512,12 @@ def analyze(para):
     #######################################################################
     # interpreter: warn binary dependency etc. if they are top 3 popular files
     #######################################################################
-    popular(
-        "perl",
-        '-b":perl, ..." missing. Continue?',
-        para["debs"],
-        para["extcountlist"],
-        para["yes"],
-    )
-    popular(
-        "python3",
-        '-b":python3" is missing. Continue?',
-        para["debs"],
-        para["extcountlist"],
-        para["yes"],
-    )
-    popular(
-        "ruby",
-        '-b":ruby, ..." missing. Continue?',
-        para["debs"],
-        para["extcountlist"],
-        para["yes"],
-    )
-    popular(
-        "javascript",
-        '-b":nodejs, ..." missing. Continue?',
-        para["debs"],
-        para["extcountlist"],
-        para["yes"],
-    )
+    check_popular_ext_type("perl", '-b":perl, ..." missing. Continue?', para)
+    check_popular_ext_type("python3", '-b":python3" is missing. Continue?', para)
+    check_popular_ext_type("ruby", '-b":ruby, ..." missing. Continue?', para)
+    check_popular_ext_type("javascript", '-b":nodejs, ..." missing. Continue?', para)
     #######################################################################
-    return para
+    return
 
 
 if __name__ == "__main__":

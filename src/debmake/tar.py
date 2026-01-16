@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # vim:se tw=0 sts=4 ts=4 et ai:
 """
-Copyright © 2014 Osamu Aoki
+Copyright © 2026 Osamu Aoki
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the
@@ -29,28 +29,29 @@ import sys
 import debmake.yn
 
 
-def tar(tarball, targz, srcdir, parent, yes):
+def tar(para):
     """create a source tarball excluding the debian/ directory
-    tar: called from debmake.main()
+    tar: called from debmake.__main__()
 
-    tarball   = package-version.tar.gz (or package_version.orig.tar.gz)
-    targz     = one of 'tar.gz', 'tar.bz2' or 'tar.xz'
-    srcdir    = package-version
-    parent    = parent directory name
-    yes       = True if -y, False as default
+    para["tarball"]   = 'package-version.tar.*z'
+    para["tarxz"]   = one of 'tar.gz', 'tar.bz2' or 'tar.xz'
+    para["debmake_dir"]  = package-version
+    para["yes"]     = 0 (default), Ask [Y/n]
+    para["yes"]     = 1 if -y, Force Yes
+    para["yes"]     = 2 if -yy, Force No
 
-    Please note that 'srcdir' and 'parent' are relative paths
-    (specifically: the basename of the respective directory).
-
-    Side-effects:
-        * 'srcdir' will be deleted, if it already exists and is not the current
-        * the current directory changes to 'srcdir' after successful completion
+    para['debmake_dir'] is a relative path from
+    specifically abspath para["base_dir"].
     """
-    print('I: pwd = "{}"'.format(os.getcwd()), file=sys.stderr)
-    if os.path.isdir(".pc"):
-        print('E: .pc/ directory exists.  Stop "debmake -t ..."', file=sys.stderr)
+    if not para["tarball"]:
         print(
-            "E: Remove applied patches and remove .pc/ directory, first.",
+            'E: para["tarball"] is NULL string. (untar)',
+            file=sys.stderr,
+        )
+        exit(1)
+    if not para["debmake_dir"]:
+        print(
+            'E: para["debmake_dir"] is NULL string. (untar)',
             file=sys.stderr,
         )
         exit(1)
@@ -58,55 +59,41 @@ def tar(tarball, targz, srcdir, parent, yes):
     # make distribution tarball using tar excluding debian/ directory
     # VCS tree are not copied.
     #######################################################################
-    os.chdir("..")
-    print('I: pwd = "{}"'.format(os.getcwd()), file=sys.stderr)
-    if srcdir == parent:
-        print("I: good, -t (--tar) run in the versioned directory", file=sys.stderr)
-    else:
-        if os.path.isdir(srcdir):
-            debmake.yn.yn(
-                'remove "{}" directory in tar'.format(srcdir), "rm -rf " + srcdir, yes
-            )
-        # copy from parent to srcdir using hardlinks (with debian/* data)
-        copy_command = [
-            "rsync",
-            "-av",
-            "--link-dest",
-            os.path.join(os.getcwd(), parent),
-            os.path.join(parent, os.path.curdir),
-            srcdir,
-        ]
-        print("I: $ {}".format(" ".join(copy_command)), file=sys.stderr)
-        if subprocess.call(copy_command) != 0:
-            print("E: rsync -aCv failed.", file=sys.stderr)
-            exit(1)
+    if os.path.isdir(para["debmake_dir"]):
+        print(
+            "I: the parent directory is properly named with version.", file=sys.stderr
+        )
     # tar while excluding VCS and debian directories
     tar_command = [
         "tar",
         "--exclude",
-        os.path.join(srcdir, "debian"),
+        para["debmake_dir"] + "/debian",
         "--anchored",
         "--exclude-vcs",
     ]
-    if targz == "tar.gz":
+    if para["tarxz"] == "tar.gz":
         tar_command.append("--gzip")
-    elif targz == "tar.bz2":
+    elif para["tarxz"] == "tar.bz2":
         tar_command.append("--bzip2")
-    elif targz == "tar.xz":
+    elif para["tarxz"] == "tar.xz":
         tar_command.append("--xz")
     else:
-        print('E: Wrong file format "{}".'.format(targz), file=sys.stderr)
+        print('E: Wrong file format "{}".'.format(para["tarxz"]), file=sys.stderr)
         exit(1)
     tar_command.append("-cvf")
-    tar_command.append(tarball)
-    tar_command.append(srcdir)
+    tar_command.append(para["tarball"])
+    tar_command.append(para["debmake_dir"])
+    if os.path.exists(para["tarball"]):
+        debmake.yn.yn(
+            'Overwite existing "{}"'.format(para["tarball"]),
+            "rm -rf " + para["tarball"],
+            para["yes"],
+        )
     print("I: $ {}".format(" ".join(tar_command)), file=sys.stderr)
     if subprocess.call(tar_command) != 0:
-        print("E: tar failed {}.".format(tarball), file=sys.stderr)
+        print("E: tar failed {}.".format(para["tarball"]), file=sys.stderr)
         exit(1)
-    print("I: {} tarball made".format(tarball), file=sys.stderr)
-    os.chdir(srcdir)
-    print('I: pwd = "{}"'.format(os.getcwd()), file=sys.stderr)
+    print("I: {} tarball made".format(para["tarball"]), file=sys.stderr)
     return
 
 

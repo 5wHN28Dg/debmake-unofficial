@@ -30,37 +30,30 @@ import sys
 ###########################################################################
 # origtar: called from debmake.main()
 ###########################################################################
-def origtar(package, version, targz, tarball, srcdir):
-    # cd ..
-    os.chdir("..")
-    print('I: pwd = "{}"'.format(os.getcwd()), file=sys.stderr)
+def origtar(para):
     #######################################################################
-    # make package_versdion.orig.tar.gz in the parent directory if not exist
-    # source is in srcdir
+    # make package_version.orig.tar.xz (as symlink)
     #######################################################################
-    origtargz = package + "_" + version + ".orig." + targz
-    if os.path.isfile(tarball):
-        if tarball == origtargz:
-            print(
-                'I: Use existing "{}" as upstream tarball'.format(tarball),
-                file=sys.stderr,
-            )
-        else:
-            command = "ln -sf " + tarball + " " + origtargz
-            print("I: $ {}".format(command), file=sys.stderr)
-            if subprocess.call(command, shell=True) != 0:
-                print("E: failed to create symlink.", file=sys.stderr)
-                exit(1)
-    elif os.path.isfile(origtargz):
+    if not os.path.exists(para["tarball"]):
         print(
-            'I: Use existing "{}" as upstream tarball'.format(origtargz),
+            'E: missing "{}".'.format(para["tarball"]),
+            file=sys.stderr,
+        )
+        exit(1)
+    origtargz = para["package"] + "_" + para["version"] + ".orig." + para["tarxz"]
+    if para["tarball"] == origtargz:
+        print(
+            'I: use the existing "{}" as the upstream orig.tar.?z'.format(
+                para["tarball"]
+            ),
             file=sys.stderr,
         )
     else:
-        print('E: missing "{}".'.format(tarball), file=sys.stderr)
-        exit(1)
-    os.chdir(srcdir)  # calling side ensures this
-    print('I: pwd = "{}"'.format(os.getcwd()), file=sys.stderr)
+        command = "ln -sf " + para["tarball"] + " " + origtargz
+        print("I: $ {}".format(command), file=sys.stderr)
+        if subprocess.call(command, shell=True) != 0:
+            print("E: failed to create symlink.", file=sys.stderr)
+            exit(1)
     return
 
 

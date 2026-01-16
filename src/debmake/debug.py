@@ -25,54 +25,54 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 import sys
 
-
 #######################################################################
 # Debug output
 #######################################################################
-def get_debug():
-    try:
-        e = os.environ["DEBUG"]
-    except KeyError:
-        e = ""
-    return e
+key_parameters = [
+    "package",
+    "version",
+    "revision",
+    "tarxz",
+    "tarball",
+    "native",
+    "tar",
+    "archive",
+    "export",
+    "override",
+]
 
 
-def debug(msg, type=""):
-    e = get_debug()
-    if (e != "" and type == "") or (type in e):
+#######################################################################
+def debug(type, para, msg):
+    env = os.environ.get("DEBUG", "")
+    if type == "s" and "s" in env:
+        # simple debug progress report
         print(msg, file=sys.stderr)
-    return
-
-
-def debug_para(msg, para):
-    e = get_debug()
-    if "p" in e:
-        line = "{}:\n".format(msg)
-        for x in para.keys():
-            line += '  para[{}] = "{}"\n'.format(x, para[x])
-        print(line, file=sys.stderr)
-    elif e:
-        line = "{}:\n".format(msg)
-        line += '  para[{}] = "{}"\n'.format("package", para["package"])
-        line += '  para[{}] = "{}"\n'.format("version", para["version"])
-        line += '  para[{}] = "{}"\n'.format("revision", para["revision"])
-        line += '  para[{}] = "{}"\n'.format("targz", para["targz"])
-        print(line, file=sys.stderr)
-    return
-
-
-def debug_debs(msg, debs):
-    e = get_debug()
-    if "d" in e:
-        line = "{}: \n".format(msg)
-        for deb in debs:
-            line += "  Binary Package: {}\n".format(deb["package"])
-            line += "    Architecture: {}\n".format(deb["arch"])
-            line += "    Multi-Arch:   {}\n".format(deb["multiarch"])
-            line += "    Depends:      {}\n".format(deb["depends"])
-            line += "    Pre-Depends:  {}\n".format(deb["pre-depends"])
-            line += "    Type:         {}\n".format(deb["type"])
-        print(line, file=sys.stderr)
+    elif type == "p" and "p" in env:
+        print(msg, file=sys.stderr)
+        for k in key_parameters:
+            print('  para[{}] = "{}"'.format(k, para.get(k, "")), file=sys.stderr)
+    elif type == "p" and "P" in env:
+        print(msg, file=sys.stderr)
+        for k, v in para.items():
+            print('  para[{}] = "{}"'.format(k, v), file=sys.stderr)
+    elif type == "d" and "d" in env:
+        print(msg, file=sys.stderr)
+        for deb in para["debs"]:
+            print("  Binary Package: {}".format(deb["package"]), file=sys.stderr)
+            print("    Architecture: {}".format(deb["arch"]), file=sys.stderr)
+            print("    Multi-Arch:   {}".format(deb["multiarch"]), file=sys.stderr)
+            print(
+                "    Depends:      {}".format(", ".join(deb["depends"])),
+                file=sys.stderr,
+            )
+            print(
+                "    Pre-Depends:  {}".format(", ".join(deb["pre-depends"])),
+                file=sys.stderr,
+            )
+            print("    Type:         {}".format(deb["type"]), file=sys.stderr)
+    else:
+        pass
     return
 
 
@@ -80,9 +80,12 @@ def debug_debs(msg, debs):
 # Test code
 #######################################################################
 if __name__ == "__main__":
-    debug("DEBUG ON!")
     para = {}
+    debug("d", para, "**** DEBUG ON! ****")
     para["package"] = "package"
     para["version"] = "1.0"
-    para["targz"] = "tar.gz"
-    debug_para("debug_para", para)
+    para["tarxz"] = "tar.xz"
+    para["tarball"] = "package-ver.tar.xz"
+    para["foo"] = "bar"
+    debug("p", para, "=== debug select para ===")
+    debug("P", para, "=== debug all para ===")

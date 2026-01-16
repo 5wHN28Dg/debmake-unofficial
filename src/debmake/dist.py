@@ -24,16 +24,21 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import glob
 import os
+import os.path
 import re
 import subprocess
 import sys
 
+import debmake.yn
+
 
 ###########################################################################
 # dist: called from debmake.main()
+#  - This set para["tarball"] value as a part of return value para
 ###########################################################################
 def dist(para):
-    print('I: pwd = "{}"'.format(os.getcwd()), file=sys.stderr)
+    distdir = "."
+    print('I: make the upstream tarball with "make dist" equivalents', file=sys.stderr)
     #######################################################################
     # make distribution tarball using the Autotools
     #######################################################################
@@ -53,11 +58,11 @@ def dist(para):
     #         line = f.readline()
     #     if re.search("python3", line):
     #         # http://docs.python.org/3/distutils/
-    #         if para["targz"] == "tar.xz":
+    #         if para["tarxz"] == "tar.xz":
     #             command = (
     #                 "python3 setup.py sdist --owner=root --group=root --formats=xztar"
     #             )
-    #         elif para["targz"] == "tar.bz2":
+    #         elif para["tarxz"] == "tar.bz2":
     #             command = (
     #                 "python3 setup.py sdist --owner=root --group=root --formats=bztar"
     #             )
@@ -67,11 +72,11 @@ def dist(para):
     #             )
     #     else:
     #         # http://docs.python.org/2/distutils/
-    #         if para["targz"] == "tar.xz":
+    #         if para["tarxz"] == "tar.xz":
     #             command = (
     #                 "python setup.py sdist --owner=root --group=root --formats=xztar"
     #             )
-    #         elif para["targz"] == "tar.bz2":
+    #         elif para["tarxz"] == "tar.bz2":
     #             command = (
     #                 "python setup.py sdist --owner=root --group=root --formats=bztar"
     #             )
@@ -126,96 +131,122 @@ def dist(para):
     somepackage1 = distdir + "/*.tar.xz"
     somepackage2 = distdir + "/*.tar.gz"
     somepackage3 = distdir + "/*.tar.bz2"
-    files = glob.glob(somepackage1) + glob.glob(somepackage2) + glob.glob(somepackage3)
-    if files:
-        for file in files:
-            print("I: -> {} created".format(file), file=sys.stderr)
-        para["tarball"] = files[0][len(distdir) + 1 :]
-        print("I: {} picked for packaging".format(para["tarball"]), file=sys.stderr)
-        matchtar = re.match(
-            r"(?P<package>[^_]*)[-_](?P<version>[^-_]*)\.(?P<targz>tar\..{2,3})$",
-            para["tarball"],
-        )
-        if matchtar:
-            if para["package"] == "":
-                para["package"] = matchtar.group("package").lower()
-            if para["version"] == "":
-                para["version"] = matchtar.group("version")
-            elif para["version"] != matchtar.group("version"):
-                print(
-                    'E: generated tarball version "{}".'.format(
-                        matchtar.group("version")
-                    ),
-                    file=sys.stderr,
-                )
-                print(
-                    'E: expected version "{}" (from -u option or debian/changelog).'.format(
-                        para["version"]
-                    ),
-                    file=sys.stderr,
-                )
-                print(
-                    "E: update version number in places such as AC_INIT of configure.ac.",
-                    file=sys.stderr,
-                )
-                exit(1)
-            if para["targz"] == "":
-                para["targz"] = matchtar.group("targz")
-            elif para["targz"] != matchtar.group("targz"):
-                print(
-                    'W: override -z "{}" by actual value "{}".'.format(
-                        para["targz"], matchtar.group("targz")
-                    ),
-                    file=sys.stderr,
-                )
-                para["targz"] = matchtar.group("targz")
-        else:
-            print(
-                "W: {} can not be split into package-version.tar.gz style.".format(
-                    para["tarball"]
-                ),
-                file=sys.stderr,
-            )
-    else:
-        print("E: {}/*.tar.*z can not be found.".format(distdir), file=sys.stderr)
-        print("E: not even likely tarball found", file=sys.stderr)
-        exit(1)
-    #######################################################################
-    # copy tar to the parent directory (out of source tree)
-    #######################################################################
-    # cd ..
-    os.chdir("..")
-    print('I: pwd = "{}"'.format(os.getcwd()), file=sys.stderr)
-    # cp -f parent/dist/foo-1.0.tar.gz foo-1.0.tar.gz
-    command = (
-        "cp -f "
-        + para["parent"]
-        + "/"
-        + distdir
-        + "/"
-        + para["tarball"]
-        + " "
-        + para["tarball"]
+    globbed_files = (
+        glob.glob(somepackage1) + glob.glob(somepackage2) + glob.glob(somepackage3)
     )
-    print("I: $ {}".format(command), file=sys.stderr)
-    if subprocess.call(command, shell=True) != 0:
-        print("E: failed to copy", file=sys.stderr)
-        exit(1)
-    para["srcdir"] = para["package"] + "-" + para["version"]
-    if para["srcdir"] == para["parent"]:
-        # avoid erasing VCS in untar process.
+    if not globbed_files:
         print(
-            "E: the parent directory should be like {} (never {}).".format(
-                para["package"], para["srcdir"]
+            "E: tarball unfound after --dist (globbed_files is empty)",
+            file=sys.stderr,
+        )
+        exit(1)
+    for file in globbed_files:
+        print(
+            "I: -> {} created as {} in --dist build tree".format(
+                os.path.basename(file), file
+            ),
+            file=sys.stderr,
+        )
+    tarball_abspath_by_dist = os.path.abspath(globbed_files[0])
+    tarball_by_dist = os.path.basename(tarball_abspath_by_dist)
+    print(
+        'I: "{}" tarball picked.'.format(tarball_by_dist),
+        file=sys.stderr,
+    )
+    re_match_package_version = re.match(
+        r"(?P<package>[^_]*)[-_](?P<version>[^-_]*)\.(?P<tarxz>tar\..{2,3})$",
+        tarball_by_dist,
+    )
+    re_match_package = re.match(
+        r"(?P<package>[^_]*)\.(?P<tarxz>tar\..{2,3})$",
+        tarball_by_dist,
+    )
+    tarball_by_dist_package = ""
+    tarball_by_dist_version = ""
+    tarball_by_dist_tarxz = ""
+    if re_match_package_version:
+        tarball_by_dist_package = re_match_package_version.group("package")
+        tarball_by_dist_version = re_match_package_version.group("version")
+        tarball_by_dist_tarxz = re_match_package_version.group("tarxz")
+        if para["package"] == "":
+            para["package"] = tarball_by_dist_package.lower()
+        if para["version"] == "":
+            para["version"] = tarball_by_dist_version
+        if para["tarxz"] == "":
+            para["tarxz"] = tarball_by_dist_tarxz
+    elif re_match_package:
+        tarball_by_dist_package = re_match_package.group("package")
+        tarball_by_dist_tarxz = re_match_package.group("tarxz")
+        if para["package"] == "":
+            para["package"] = tarball_by_dist_package.lower()
+        if para["version"] == "":
+            para["version"] = "1"
+        if para["tarxz"] == "":
+            para["tarxz"] = tarball_by_dist_tarxz
+    else:
+        print(
+            'E: tarball unfound after --dist (globbed_files="{}")'.format(
+                globbed_files
+            ),
+            file=sys.stderr,
+        )
+        exit(1)
+    if para["package"] == "" or para["version"] == "" or para["tarxz"] == "":
+        print(
+            'E: para["package"] = "{}", para["version"] = "{}", para["tarxz"] = "{} after --dist'.format(
+                para["package"], para["version"], para["tarxz"]
+            ),
+            file=sys.stderr,
+        )
+        exit(1)
+    if (re_match_package_version or re_match_package) and (
+        para["package"] != tarball_by_dist_package
+        or para["version"] != tarball_by_dist_version
+        or para["tarxz"] != tarball_by_dist_tarxz
+    ):
+        print(
+            'W: "{}-{}.{}" tarball expected from -p/-u/-z options or debian/changelog.'.format(
+                para["package"], para["version"], para["tarxz"]
             ),
             file=sys.stderr,
         )
         print(
-            "E: terminate to protect the VCS data possibly in the original directory.",
+            "W: you may update program name and version in source as needed.",
+            file=sys.stderr,
+        )
+    if (para["package"] + "-" + para["version"]) == os.path.basename(
+        os.path.abspath(os.getcwd())
+    ):
+        print(
+            'E: "debmake --dist" should not be used for the source tree checked out to versioned {}-{}/" direcory.'.format(
+                para["package"], para["version"]
+            ),
+            file=sys.stderr,
+        )
+        print(
+            'E: Use something like "{}/" direcory for Git checkout.'.format(
+                para["package"]
+            ),
             file=sys.stderr,
         )
         exit(1)
-    return para
+
+    #######################################################################
+    # create properly named tarball in the parent directory
+    #######################################################################
+    # para["base_dir"] = os.path.abspath("../" + os.getcwd()) # tar.xz file here
+    # para["source_dir"] = os.path.basename(os.path.abspath(os.getcwd())) # git checkout here
+    para["tarball"] = para["package"] + "-" + para["version"] + "." + para["tarxz"]
+    if os.path.exists("../" + para["tarball"]):
+        msg = 'Overwrite existing "{}"'.format("../" + para["tarball"])
+        debmake.yn.yn(msg, "rm -f ../" + para["tarball"], para["yes"])
+    # cp -f parent/dist/foo-1.0.tar.gz foo-1.0.tar.gz
+    command = "cp -f " + tarball_abspath_by_dist + " ../" + para["tarball"]
+    print("I: $ {}".format(command), file=sys.stderr)
+    if subprocess.call(command, shell=True) != 0:
+        print("E: failed to copy", file=sys.stderr)
+        exit(1)
+    return
 
 
 if __name__ == "__main__":

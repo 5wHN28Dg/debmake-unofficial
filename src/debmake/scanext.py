@@ -23,7 +23,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import collections
-import operator
+import itertools
 import os
 import re
 import sys
@@ -31,38 +31,7 @@ import sys
 ###################################################################
 # Define constants
 ###################################################################
-MAX_FILE_SIZE = 1024 * 1024  # 1 MiB
-SKIP_FILES = [
-    "COPYING",
-    "LICENSE",
-    "ChangeLog",
-    "changelog",
-]  # Skip these files for scanning
-# The following files are scanned but if they are not-pedantic
-# and permissive license, they are skipped from listing in the
-# debian/copyright file. (this is in copyright.py)
-#        'INSTALL',
-#        'README',
-#        'README.txt',
-#        'README.Debian',
-#        'Makefile.in',
-#        'aclocal.m4',
-#        'compile',
-#        'config.guess',
-#        'config.h.in',
-#        'config.sub',
-#        'configure',
-#        'depcomp',
-#        'install-sh',
-#        'ltconfig',
-#        'ltmain.sh',
-#        'missing',
-#        'mkinstalldirs',
-#        'py-compile'
-
-# First 2 are specified by --license
-
-extequiv = {
+ext_to_type = {
     "pl": "perl",
     "PL": "perl",
     "pm": "perl",
@@ -134,37 +103,19 @@ extequiv = {
     "wav": "media",
 }
 ###################################################################
-# re.search file name extension
+# re.search file name extension (ignoring compression)
 
-re_ext = re.compile(r"\.(?P<ext>[^.]+)(?:\.in|\.gz|\.bz2|\.xz|\.Z\|.z|~)*$")
-
-
-###################################################################
-# Check if binary file
-###################################################################
-def typefile(file, blocksize=4048):
-    buff = open(file, mode="rb").read(blocksize)
-    if b"<" == buff[:1]:
-        return 2  # XML/SGML/HTML
-    # This code is disabled since we use UTF-8 decoding error as indicator
-    #    elif b'\x00' in buff:
-    #        return 0 # Binary
-    #    elif b'\xff\xff' in buff:
-    #        return 0 # Binary
-    else:
-        return 1  # Text
+re_ext = re.compile(r"\.(?P<ext>[^.]+)(?:\.in|\.gz|\.bz2|\.xz|\.Z\|\.z|~)*$")
 
 
 ###################################################################
-# Get all files to be analyzed under dir
+# Scan source to count all program related extensions
 ###################################################################
-def get_all_files():
-    nonlink_files = []
-    binary_files = []
-    xml_html_files = []
-    huge_files = []
-    extensions = []
-    # extensions : representative code type
+def scanext():
+    # exclude some non program source extensions
+    excluded_ext_type = ["text", "binary", "archive", "media"]
+    ext_type_list = []
+    # ext_type_list : representative code type
     # binary means possible non-DFSG component
     for dir, subdirs, files in os.walk("."):
         for file in files:
@@ -172,92 +123,43 @@ def get_all_files():
             filepath = os.path.join(dir[2:], file)
             if os.path.islink(filepath):
                 pass  # skip symlink (both for file and dir)
-            elif file in SKIP_FILES:
-                pass  # skip automatically generated files
-            elif filepath == "debian/copyright":
-                pass  # skip debian/copyrit
             else:
                 re_ext_match = re_ext.search(file)
                 if re_ext_match:
                     ext = re_ext_match.group("ext")
-                    if ext in extequiv.keys():
-                        extrep = extequiv[ext]
+                    if ext in ext_to_type.keys():
+                        ext_type = ext_to_type[ext]
                     else:
-                        extrep = ext
-                    extensions.append(extrep)
-                type_of_file = typefile(filepath)
-                if type_of_file == 2:  # XML/SGML/HTML
-                    xml_html_files.append(filepath)
-                elif type_of_file == 0:  # Binary
-                    binary_files.append(filepath)
-                elif os.path.getsize(filepath) > MAX_FILE_SIZE:
-                    huge_files.append(filepath)
-                else:  # type_of_file == 1 Text
-                    nonlink_files.append(filepath)
-        # do not descend to VCS dirs
-        for vcs in ["CVS", ".svn", ".pc", ".git", ".hg", ".bzr"]:
+                        ext_type = ext
+                    # extrep is normalized extension
+                    if ext_type not in excluded_ext_type:
+                        ext_type_list.append(ext_type)
+        # do not descend to VCS dirs and debian/ directory
+        for vcs in ["CVS", ".svn", ".pc", ".git", ".hg", ".bzr", "debian"]:
             if vcs in subdirs:
                 subdirs.remove(vcs)  # skip VCS
-        # do not descend to symlink dirs
-        symlinks = []
-        for subdir in subdirs:
-            dirpath = os.path.join(dir, subdir)
-            if os.path.islink(dirpath):
-                symlinks.append(subdir)
-        # do not change subdirs inside looping over subdirs
-        for symlink in symlinks:
-            subdirs.remove(symlink)  # skip symlinks
-            print("W: get_all_files(dir) skip symlink dir", file=sys.stderr)
-    return (nonlink_files, xml_html_files, binary_files, huge_files, extensions)
-
-
-#######################################################################
-# complete scanfiles
-#######################################################################
-def scanfiles():
-    (
-        nonlink_files,
-        xml_html_files,
-        binary_files,
-        huge_files,
-        extensions,
-    ) = get_all_files()
-    if len(extensions):
-        delta = 100.0 / len(extensions)
-    else:
-        delta = 100.0
-    counter = collections.Counter(extensions)
-    count_list = sorted(list(counter.items()), key=operator.itemgetter(1), reverse=True)
-    for ext, count in count_list:
-        if ext == "binary" or ext == "archive":
-            print("W: {} type exists.  Maybe non-DFSG!".format(ext), file=sys.stderr)
-        print("I: {1:3.0f} %, ext = {0}".format(ext, count * delta), file=sys.stderr)
-    return (
-        nonlink_files,
-        xml_html_files,
-        binary_files,
-        huge_files,
-        counter,
-        count_list,
+    # Assume Python 3.7 or newer to preserve item order for dict
+    ext_type_counter = dict(
+        reversed(
+            sorted(collections.Counter(ext_type_list).items(), key=lambda item: item[1])
+        )
     )
+    n_max_files = 3
+    for ext_type in itertools.islice(ext_type_counter.keys(), 0, n_max_files):
+        print(
+            "I: ext_type = {0:<16} {1:>8} files".format(
+                ext_type, ext_type_counter[ext_type]
+            ),
+            file=sys.stderr,
+        )
+    return ext_type_counter
 
 
 #######################################################################
 # Test script
 #######################################################################
 if __name__ == "__main__":
-    (
-        nonlink_files,
-        xml_html_files,
-        binary_files,
-        huge_files,
-        counter,
-        count_list,
-    ) = scanfiles()
-    print("Number of nonlink_files: {}".format(len(nonlink_files)))
-    print("Number of xml_html_files: {}".format(len(xml_html_files)))
-    print("Number of binary_files: {}".format(len(binary_files)))
-    print("Number of huge_files: {}".format(len(huge_files)))
-    print("I: counts of file extensions", file=sys.stderr)
-    for ext, count in count_list:
-        print("{1} files for ext = {0}".format(ext, count))
+    ext_type_counter = scanext()
+    print("I: ext_type ====================== file count", file=sys.stderr)
+    for ext_type, count in ext_type_counter.items():
+        print("   ext_type = {0:<16} {1:>8} files".format(ext_type, count))

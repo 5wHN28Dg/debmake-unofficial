@@ -27,31 +27,33 @@ import glob
 import sys
 
 import debmake.cat
-import debmake.debug
 
 
 #######################################################################
-def sed(confdir, destdir, substlist, package, mask="*.txt", suffix="", tutorial=False):
+def sed(confmask, destdir, substlist, package, para):
     ###################################################################
-    # confdir:   configuration file directory with / at the end
+    # confmask:   configuration file path glob mask with *
     # destdir:   destination directory with / at the end
     # substlist: substitution dictionary
     # package:   binary package name
-    # mask:      source file mask for glob. Usually, *.txt
+    # para:      global variable
     ###################################################################
-    lconfdir = len(confdir)
-    for file in glob.glob(confdir + mask):
-        print("I: substituting => {}".format(file), file=sys.stderr)
+    len_data_path = len(para["data_path"])
+    for file in glob.glob(para["data_path"] + confmask):
+        destname = file[len_data_path + file[len_data_path:].find("_") + 1 :]
+        if destname[: len("package")] == "package":
+            newfile = destdir + package + destname[len("package") :]
+        else:
+            newfile = destdir + destname
+        print(
+            "I: creating {} from {}".format(newfile, file[len_data_path:]),
+            file=sys.stderr,
+        )
         with open(file, mode="r", encoding="utf-8") as f:
             text = f.read()
         for k in substlist.keys():
             text = text.replace(k, substlist[k])
-        if file[lconfdir : lconfdir + 7] == "package":
-            newfile = destdir + package + file[lconfdir + 7 : -4] + suffix
-        else:
-            newfile = destdir + file[lconfdir:-4] + suffix
-        debmake.debug.debug('Dr: "{}"'.format(text), type="r")
-        debmake.cat.cat(newfile, text, tutorial=tutorial)
+        debmake.cat.cat(newfile, text, para)
     return
 
 
@@ -59,7 +61,8 @@ def sed(confdir, destdir, substlist, package, mask="*.txt", suffix="", tutorial=
 # Test script
 #######################################################################
 if __name__ == "__main__":
-    tutorial = False
+    para = {}
+    para["tutorial"] = False
     substlist = {
         "@BINPACKAGE@": "binpackage",
         "@PACKAGE@": "package",
@@ -69,5 +72,5 @@ if __name__ == "__main__":
         "@EMAIL@": "email@example.org",
         "@SHORTDATE@": "11 Jan. 2013",
     }
-    sed("data/extra2_", "debian/", substlist, "package", tutorial=tutorial)
-    sed("data/extra3_", "debian/", substlist, "package", tutorial=tutorial)
+    sed("data/extra2_", "debian/", substlist, "package", para)
+    sed("data/extra3_", "debian/", substlist, "package", para)

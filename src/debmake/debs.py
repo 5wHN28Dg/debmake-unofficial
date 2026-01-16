@@ -37,15 +37,18 @@ def match_suffix(name, suffix):
 ###########################################################################
 # sanity: called from debmake.main()
 ###########################################################################
-def debs(binaryspec, package, monoarch, dh_with):
+def debs(para):
     #######################################################################
     # parse binary package names and their specification: binaryspec -> debs
     #######################################################################
-    debs = []  # list
+    print(
+        'I: parse option -b "{}"'.format(para["binaryspec"]),
+        file=sys.stderr,
+    )
     pset = set()
     tset = set()
     dropch = "'" + '"' + " " + "\t" + "\n"
-    for x0 in binaryspec.strip(dropch).split(","):
+    for x0 in para["binaryspec"].strip(dropch).split(","):
         x = x0.strip()
         ###################################################################
         # split: y[0] = bin-package-name-marker y[1] = bin-package-type
@@ -62,11 +65,11 @@ def debs(binaryspec, package, monoarch, dh_with):
         ###################################################################
         p = y[0].strip()
         if p == "":  # null ==> package
-            p = package
+            p = para["package"]
         elif p == "-":  # - ==> package
-            p = package
-        elif p[0] == "-":  # -doc ==> package-doc
-            p = package + p
+            p = para["package"]
+        elif p[0] == "-":  # -doc ==> package-doc etc.
+            p = para["package"] + p
         # first default values and then override or update values
         a = "any"  # arch
         m = "foreign"  # muiti-arch
@@ -209,16 +212,16 @@ def debs(binaryspec, package, monoarch, dh_with):
         # update binary package type from dh_with and arch setting
         ###################################################################
         if t == "":
-            if "perl_build" in dh_with:
+            if "perl_build" in para["dh_with"]:
                 a = "all"
                 t = "perl"
-            elif "perl_makemaker" in dh_with:
+            elif "perl_makemaker" in para["dh_with"]:
                 a = "all"
                 t = "perl"
-            elif "python3" in dh_with:
+            elif "python3" in para["dh_with"]:
                 a = "all"
                 t = "python3"
-            elif "nodejs" in dh_with:
+            elif "nodejs" in para["dh_with"]:
                 a = "all"
                 t = "nodejs"
             elif a == "any":  # bin as default
@@ -226,7 +229,7 @@ def debs(binaryspec, package, monoarch, dh_with):
             else:
                 print(
                     "E: -b: {} has arch={}, dh_with={} and null type.".format(
-                        p, a, dh_with
+                        p, a, para["dh_with"]
                     ),
                     file=sys.stderr,
                 )
@@ -235,12 +238,12 @@ def debs(binaryspec, package, monoarch, dh_with):
         ###################################################################
         # monoarch = non-multi-arch
         ###################################################################
-        if monoarch:
+        if para["monoarch"]:
             m = ""
         ###################################################################
         # multi arch and library package
         ###################################################################
-        if (not monoarch) and t == "lib":
+        if (not para["monoarch"]) and t == "lib":
             # set this only for M-A library packages
             pd.update({"${misc:Pre-Depends}"})
         ###################################################################
@@ -287,7 +290,7 @@ def debs(binaryspec, package, monoarch, dh_with):
         ###################################################################
         # append dictionary to a list
         ###################################################################
-        debs.append(
+        para["debs"].append(
             {
                 "package": p,
                 "arch": a,
@@ -298,7 +301,7 @@ def debs(binaryspec, package, monoarch, dh_with):
             }
         )
     ###################################################################
-    return debs
+    return
 
 
 #######################################################################

@@ -30,13 +30,20 @@ import debmake.debug
 
 #######################################################################
 # cat >file
-def cat(file, text, end="", tutorial=False):
+def cat(file, text, para):
+    # para: global variable
     if os.path.isfile(file) and os.stat(file).st_size != 0:
-        # skip if a file exists and non-zero content
-        print("I: skipping :: {} (file exists)".format(file), file=sys.stderr)
-        return
+        if para["backup"]:
+            file = file + ".bkup"
+        else:
+            # skip if a file exists and non-zero content
+            print(
+                "I: skipping : {} (use --backup option to avoid skipping)".format(file),
+                file=sys.stderr,
+            )
+            return
     newtext = ""
-    if tutorial:
+    if para["tutorial"]:
         for line in text.split("\n"):
             if line[:3] != "###":
                 newtext += line + "\n"
@@ -47,13 +54,18 @@ def cat(file, text, end="", tutorial=False):
             if line[:3] != "###":
                 newtext += line + "\n"
     newtext = newtext.rstrip() + "\n"
-    path = os.path.dirname(file)
-    if path:
-        os.makedirs(path, exist_ok=True)
+    file_dirpath = os.path.dirname(file)
+    if file_dirpath:
+        os.makedirs(file_dirpath, exist_ok=True)
     with open(file, mode="w", encoding="utf-8") as f:
-        print("I: creating => {}".format(file), file=sys.stderr)
-        print(newtext, file=f, end=end)
-        debmake.debug.debug('Dw: "{}"'.format(newtext), type="w")
+        print(newtext, file=f, end="")
+        debmake.debug.debug(
+            "s",
+            para,
+            'D: output to "{}" as\n========vvvvvvvv\n{}\n========^^^^^^^^'.format(
+                file, newtext
+            ),
+        )
     return
 
 
@@ -61,5 +73,9 @@ def cat(file, text, end="", tutorial=False):
 # Test script
 #######################################################################
 if __name__ == "__main__":
-    cat("testfile0.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", tutorial=False)
-    cat("testfile1.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", tutorial=True)
+    para = {}
+    para["tutorial"] = False
+    para["backup"] = False
+    cat("testfile0.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    para["tutorial"] = True
+    cat("testfile1.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", para)

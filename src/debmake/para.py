@@ -27,29 +27,19 @@ import argparse
 import os
 import pwd
 
-import debmake.debug
 import debmake.read
-
-
-###########################################################################
-# undefined environment variable -> ''
-def env(var):
-    try:
-        return os.environ[var]
-    except KeyError:
-        return ""
 
 
 #######################################################################
 # Initialize parameters
 #######################################################################
-def para(para={}):
-    debmail = env("DEBEMAIL")
+def para(para):
+    debmail = os.environ.get("DEBEMAIL")
     if not debmail:
         # os.getlogin may not work well: #769392
         # debmail = os.getlogin() + '@localhost'
         debmail = pwd.getpwuid(os.getuid())[0] + "@localhost"
-    debfullname = env("DEBFULLNAME")
+    debfullname = os.environ.get("DEBFULLNAME")
     if not debfullname:
         # os.getlogin may not work well: #769392
         # debfullname = pwd.getpwnam(os.getlogin())[4].split(',')[0]
@@ -78,21 +68,6 @@ Argument may need to be quoted to protect from the shell.
         ),
         epilog="See debmake(1) manpage for more.",
     )
-    ck = p.add_mutually_exclusive_group()
-    ck.add_argument(
-        "-c",
-        "--copyright",
-        action="count",
-        default=0,
-        help="scan source for copyright+license text and exit",
-    )
-    ck.add_argument(
-        "-k",
-        "--kludge",
-        action="count",
-        default=0,
-        help="compare debian/copyright with the source and exit",
-    )
     sp = p.add_mutually_exclusive_group()
     sp.add_argument(
         "-n",
@@ -107,22 +82,22 @@ Argument may need to be quoted to protect from the shell.
         type=str,
         action="store",
         default="",
-        help="use the upstream source tarball directly (-p, -u, -z: overridden)",
-        metavar="package-version.tar.gz",
+        help="use the upstream source tarball directly",
+        metavar="package-version.tar.xz",
     )
     sp.add_argument(
         "-d",
         "--dist",
         action="store_true",
         default=False,
-        help='run "make dist" equivalent first to generate upstream tarball and use it',
+        help='run "make dist" equivalent first to generate upstream tarball and use it.  This is handy for source tree checked out using "git clone ...".',
     )
     sp.add_argument(
         "-t",
         "--tar",
         action="store_true",
         default=False,
-        help='run "tar" to generate upstream tarball and use it',
+        help='run "tar" to generate upstream tarball and use it.  This is handy for source tree checked out using "git clone ...".  The generated tarball excludes debian/ directory.',
     )
     p.add_argument(
         "-p",
@@ -152,7 +127,7 @@ Argument may need to be quoted to protect from the shell.
         "-z",
         "--targz",
         action="store",
-        default="*",
+        default="",
         help="set the tarball type, extension=(tar.gz|tar.bz2|tar.xz)",
         metavar="extension",
     )
@@ -203,14 +178,6 @@ Argument may need to be quoted to protect from the shell.
         action="store_true",
         default=False,
         help='run "dpkg-depcheck" to judge build dependencies and identify file paths',
-    )
-    p.add_argument(
-        "-l",
-        "--license",
-        default="",
-        action="store",
-        help="add formatted license to debian/copyright",
-        metavar='"license_file"',
     )
     p.add_argument(
         "-m",
@@ -265,25 +232,18 @@ Argument may need to be quoted to protect from the shell.
         "-y", "--yes", action="count", default=0, help='"force yes" for all prompts'
     )
     p.add_argument(
-        "-L",
-        "--local",
-        action="store_true",
-        default=False,
-        help="generate configuration files for the local package",
-    )
-    p.add_argument(
-        "-P",
-        "--pedantic",
-        action="store_true",
-        default=False,
-        help="pedantically check auto-generated files",
-    )
-    p.add_argument(
         "-T",
         "--tutorial",
         action="store_true",
         default=False,
         help="output tutorial comment lines in template files",
+    )
+    p.add_argument(
+        "-B",
+        "--backup",
+        action="store_true",
+        default=False,
+        help="for existing template files, create new template files with .bkup suffix and keep the existing ones",
     )
     args = p.parse_args()
     #######################################################################
@@ -295,13 +255,8 @@ Argument may need to be quoted to protect from the shell.
         para["tarball"] = args.archive
     else:
         para["archive"] = False
-        para["tarball"] = ""
     #############################################
     para["binaryspec"] = args.binaryspec  # -b
-    para["copyright"] = min(args.copyright, 6)  # -c
-    if para["copyright"] >= 4:
-        para["copyright"] = 3 - para["copyright"]
-        # 0: debian/copyright, +/-1: simple, +/-2: standard +/-3: extensive
     para["dist"] = args.dist  # -d
     para["email"] = args.email  # -e
     para["fullname"] = args.fullname  # -f
@@ -310,15 +265,6 @@ Argument may need to be quoted to protect from the shell.
     para["judge"] = args.judge  # -j
     if para["judge"]:
         para["override"].update({"judge"})
-    para["kludge"] = args.kludge  # -k
-    ############################################# -l
-    # --license: args.license -> para['license'] as set
-    if args.license == "":
-        para["license"] = set(
-            {"[Cc][Oo][Pp][Yy][Ii][Nn][Gg]*", "[Ll][Ii][Cc][Ee][Nn][Ss][Ee]*"}
-        )  # default
-    else:
-        para["license"] = set(args.copyright.split(","))
     #############################################
     para["monoarch"] = args.monoarch  # -m
     para["native"] = args.native  # -n
@@ -340,28 +286,34 @@ Argument may need to be quoted to protect from the shell.
     para["extra"] = args.extra  # -x
     para["yes"] = min(args.yes, 2)  # -y
     # 0: ask, 1: yes, 2: no
-    para["targz"] = args.targz  # -z
-    para["local"] = args.local  # -L
-    para["pedantic"] = args.pedantic  # -P
+    para["tarxz"] = args.targz  # -z
+    if para["tarxz"] == "":
+        pass
+    elif para["tarxz"][0] == "g":
+        para["tarxz"] = "tar.gz"
+    elif para["tarxz"][0] == "b":
+        para["tarxz"] = "tar.bz2"
+    elif para["tarxz"][0] == "x":
+        para["tarxz"] = "tar.xz"
+    else:
+        para["tarxz"] = "tar.xz"
     para["tutorial"] = args.tutorial  # -T
-    if para["copyright"] >= 3:
-        para["tutorial"] = True  # override
+    para["backup"] = args.backup  # -B
     ############################################# -o
     if args.option:
         exec(debmake.read.read(args.option))
-    #######################################################################
-    # return command line parameters
-    #######################################################################
-    text = ""
-    for p, v in para.items():
-        text = text + "para['{}'] = \"{}\"\n".format(p, v)
-    debmake.debug.debug('Dp: "{}"'.format(text), type="p")
-    return para
+    return
 
 
 #######################################################################
 # Test code
 #######################################################################
 if __name__ == "__main__":
-    for p, v in para().items():
+    parax = {
+        "program_name": "foo",
+        "program_version": "9.9.9",
+        "program_copyright": "John Doh",
+    }
+    para(parax)
+    for p, v in parax.items():
         print("para['{}'] = \"{}\"".format(p, v))

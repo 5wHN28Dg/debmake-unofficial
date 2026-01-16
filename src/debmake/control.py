@@ -23,12 +23,14 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import re
+import sys
 
 import debmake.read
 
 
 #######################################################################
 def control(para):
+    print("I: creating debian/control by control.py", file=sys.stderr)
     ndebs = len(para["debs"])
     types = set()
     for deb in para["debs"]:
@@ -52,15 +54,15 @@ def control(para):
     else:
         if para["tutorial"]:
             desc_long_xtra = debmake.read.read(
-                para["data_path"] + "extra0desc_long__long_tutorial.txt"
+                para["data_path"] + "extra0desc_long__long_tutorial"
             ).rstrip()
         else:
             desc_long_xtra = debmake.read.read(
-                para["data_path"] + "extra0desc_long__long.txt"
+                para["data_path"] + "extra0desc_long__long"
             ).rstrip()
     for i, deb in enumerate(para["debs"]):
         desc_long_type = debmake.read.read(
-            para["data_path"] + "extra0desc_long_" + deb["type"] + ".txt"
+            para["data_path"] + "extra0desc_long_" + deb["type"]
         ).rstrip()
         if ndebs == 1:  # single binary
             deb["desc"] = desc
@@ -222,7 +224,7 @@ Description: {6}
 # Test script
 #######################################################################
 if __name__ == "__main__":
-    import debmake.debs
+    import debs
 
     para = {}
     para["package"] = "package"
@@ -235,14 +237,15 @@ if __name__ == "__main__":
     para["homepage"] = "https://www.debian.org"
     para["vcsvcs"] = "git:git.debian.org"
     para["vcsbrowser"] = "https://anonscm.debian.org"
-    para["debs"] = set()
+    para["debs"] = []
     para["dh_with"] = set()
+    para["desc"] = "DUMMY_DESC"
+    para["desc_long"] = "DUMMY_DESC_LONG"
+    para["data_path"] = "data/"
     print(control(para))
     print("***********************************************************")
     para["dh_with"] = set({"python3"})
     para["binaryspec"] = "-:python3,-doc:doc,lib"
     para["monoarch"] = False
-    para["debs"] = debmake.debs.debs(
-        para["binaryspec"], para["package"], para["monoarch"], para["dh_with"]
-    )
+    debs.debs(para)
     print(control(para))
