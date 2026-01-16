@@ -1,0 +1,10 @@
+# You must remove unused comment lines for the released package.
+### See dh_installdocs(1)
+###README
+###READMEmd
+###TODO
+###debian/notes-for-maintainers.txt
+###docs/manual.txt
+###docs/manual.pdf
+###docs/manual-html/
+

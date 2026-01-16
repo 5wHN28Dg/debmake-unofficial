@@ -1,0 +1,8 @@
+== NOTE ON TEMPLATE FILE ==
+
+If para["tutorial"] is set to "True" by setting "--tutorial"/"-T" option to
+debmake, generated file will include lines started with "###" (replaced by
+"#").
+
+Many strings like @....@ are replaced.
+
