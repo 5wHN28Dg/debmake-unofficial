@@ -2,12 +2,12 @@
 .\"     Title: debmake
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.23
-.\"      Date: 2024-07-27
+.\"      Date: 2026-01-18
 .\"    Manual: Debmake Manual
 .\"    Source: DEBMAKE
 .\"  Language: English
 .\"
-.TH "DEBMAKE" "1" "2024-07-27" "DEBMAKE" "Debmake Manual"
+.TH "DEBMAKE" "1" "2026-01-18" "DEBMAKE" "Debmake Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -31,7 +31,7 @@
 debmake \- program to make a Debian source package
 .SH "SYNOPSIS"
 .sp
-\fBdebmake\fP  [\fB\-h\fP]  [\fB\-c\fP | \fB\-k\fP] [\fB\-n\fP | \fB\-a\fP \fIpackage\-version\fP\fB.orig.tar.gz\fP | \fB\-d\fP | \fB\-t\fP ] [\fB\-p\fP \fIpackage\fP] [\fB\-u\fP \fIversion\fP] [\fB\-r\fP \fIrevision\fP] [\fB\-z\fP \fIextension\fP] [\fB\-b\fP "\fIbinarypackage\fP\fI[:type], ...\fP]" [\fB\-e\fP \fIfoo@example.org\fP] [\fB\-f\fP "\fIfirstname lastname\fP"] [\fB\-i\fP "\fIbuildtool\fP" | \fB\-j\fP] [\fB\-l\fP \fIlicense_file\fP] [\fB\-m\fP] [\fB\-o\fP \fIfile\fP] [\fB\-q\fP] [\fB\-s\fP] [\fB\-v\fP] [\fB\-w\fP "\fIaddon, ...\fP"] [\fB\-x\fP [\fI01234\fP]] [\fB\-y\fP] [\fB\-L\fP] [\fB\-P\fP] [\fB\-T\fP]
+\fBdebmake\fP  [\fB\-h\fP]  [\fB\-n\fP | \fB\-a\fP \fIpackage\-version\fP\fB.orig.tar.gz\fP | \fB\-d\fP | \fB\-t\fP ] [\fB\-p\fP \fIpackage\fP] [\fB\-u\fP \fIversion\fP] [\fB\-r\fP \fIrevision\fP] [\fB\-z\fP \fIextension\fP] [\fB\-b\fP "\fIbinarypackage\fP\fI[:type], ...\fP]" [\fB\-e\fP \fIfoo@example.org\fP] [\fB\-f\fP "\fIfirstname lastname\fP"] [\fB\-i\fP "\fIbuildtool\fP" | \fB\-j\fP] [\fB\-m\fP] [\fB\-o\fP \fIfile\fP] [\fB\-q\fP] [\fB\-s\fP] [\fB\-v\fP] [\fB\-w\fP "\fIaddon, ...\fP"] [\fB\-x\fP [\fI01234\fP]] [\fB\-y\fP] [\fB\-T\fP] [\fB\-B\fP]
 .SH "DESCRIPTION"
 .sp
 \fBdebmake\fP helps to build a Debian package from the upstream source.  Normally, this is done as follows:
@@ -91,7 +91,57 @@ Files in the \fIpackage\-version\fP\fB/debian/\fP directory are manually adjuste
 \fBdpkg\-buildpackage\fP (usually from its wrapper \fBdebuild\fP or \fBsbuild\fP) is invoked in the \fIpackage\-version/\fP directory to make Debian packages.
 .RE
 .sp
-Make sure to protect the arguments of the \fB\-b\fP, \fB\-f\fP, \fB\-l\fP, and \fB\-w\fP options from shell interference by quoting them properly.
+Make sure to protect the arguments of the \fB\-b\fP, \fB\-f\fP, and \fB\-w\fP options from shell interference by quoting them properly.
+.sp
+Recently, the upstream may release its source code using the Git repository only without the tarball. \fBdebmake\fP can offer a way to
+work with this situation:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\(lq\fBgit clone https://\fP\fIgit.site.org/project/package\fP\fB.git\fP\(rq downloads upstream source to the \fIpackage/\fP directory.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\(lq\fBcd\fP \fIproject/\fP ; \fBdebmake \-u\fP \fIversion\fP \fB\-\-tar ; cd \-\fP\(rq generates the \fIpackage\-version\fP\fB.tar.xz\fP file, the \fIpackage_version\fP\fB.orig.tar.xz\fP symlink, and the \fIpackage\-version/\fP directory.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Files in the \fIpackage\-version\fP/\fBdebian/\fP directory shall be manually adjusted.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fBdpkg\-buildpackage\fP (usually from its wrapper \fBdebuild\fP or \fBsbuild\fP) is invoked in the \fIpackage\-version/\fP directory to make Debian packages.
+.RE
+.sp
+Other tools also offer ways to obtain the upstream tarball and creating required symlink to build a Debian package depending on
+your workflow.  For example, \fBorigtargz\fP, \fBmk\-origtargz\fP, \fBgit\-deborig\fP, and \fBpristine\-tar\fP.
 .SS "optional arguments:"
 .sp
 \fB\-h\fP, \fB\-\-help\fP
@@ -99,78 +149,11 @@ Make sure to protect the arguments of the \fB\-b\fP, \fB\-f\fP, \fB\-l\fP, and \
 show this help message and exit.
 .RE
 .sp
-\fB\-c\fP, \fB\-\-copyright\fP
-.RS 4
-scan source for copyright+license text and exit.
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fB\-c\fP: simple output style
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fB\-cc\fP: normal output style (similar to the \fBdebian/copyright\fP file)
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fB\-ccc\fP: debug output style
-.RE
-.RE
-.sp
-\fB\-k\fP, \fB\-\-kludge\fP
-.RS 4
-compare the \fBdebian/copyright\fP file with the source and exit.
-.sp
-The \fBdebian/copyright\fP file must be organized to list the generic file patterns before the specific exceptions.
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fB\-k\fP: basic output style
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fB\-kk\fP: verbose output style
-.RE
-.RE
-.sp
 \fB\-n\fP, \fB\-\-native\fP
 .RS 4
-make a native Debian source package without \fB.orig.tar.gz\fP.  This makes a \(lq\fB3.0 (native)\fP\(rq format package.
+make a native Debian source package without \fB.orig.tar.gz\fP.  This makes a Debian source format \(lq\fB3.0 (native)\fP\(rq package.
 .sp
-If you are thinking of packaging a Debian\-specific source tree with \fBdebian/\fP in it into a native Debian package, please think otherwise.  You can use  the \(lq\fBdebmake \-d  \-i debuild\fP\(rq or \(lq\fBdebmake \-t \-i debuild\fP\(rq commands to make a \(lq\fB3.0 (quilt)\fP\(rq format non\-native Debian package.  The only difference is that the \fBdebian/changelog\fP file must use the  non\-native version scheme: \fIversion\-revision\fP.  The non\-native package is more friendly to downstream distributions.
+If you are thinking of packaging a Debian\-specific source tree with \fBdebian/\fP in it into a native Debian package, please think otherwise.  You can use the \(lq\fBdebmake \-d  \-i debuild\fP\(rq or \(lq\fBdebmake \-t \-i debuild\fP\(rq commands to make a Debian non\-native package using the Debian source format \(lq\fB3.0 (quilt)\fP\(rq  The only difference is that the \fBdebian/changelog\fP file must use the non\-native version scheme: \fIversion\-revision\fP.  The non\-native package is more friendly to downstream distributions.
 .RE
 .sp
 \fB\-a\fP \fIpackage\-version\fP\fB.tar.gz\fP, \fB\-\-archive\fP \fIpackage\-version\fP\fB.tar.gz\fP
@@ -499,13 +482,6 @@ run \fBdpkg\-depcheck\fP to judge build dependencies and identify file paths.  L
 .RE
 .RE
 .sp
-\fB\-l\fP "\fIlicense_file,...\fP", \fB\-\-license\fP "\fIlicense_file,...\fP"
-.RS 4
-add formatted license text to the end of the \fBdebian/copyright\fP file holding license scan results.
-.sp
-The default is to add \fBCOPYING\fP and \fBLICENSE\fP, and \fIlicense_file\fP needs to list only the additional file names all separated by \(lq\fB,\fP\(rq.
-.RE
-.sp
 \fB\-m\fP, \fB\-\-monoarch\fP
 .RS 4
 force packages to be non\-multiarch.
@@ -560,7 +536,7 @@ For Autotools based packages, if they install Python (version 3) programs, setti
 .sp
 \fB\-x\fP \fIn\fP, \fB\-\-extra\fP \fIn\fP
 .RS 4
-generate configuration files as templates.  (Please note \fBdebian/changelog\fP, \fBdebian/control\fP, \fBdebian/copyright\fP, and \fBdebian/rules\fP are bare minimum configuration files to build a Debian binary package.)
+generate configuration files as templates.  (Please note \fBdebian/changelog\fP, \fBdebian/control\fP, \fBdebian/copyright\fP, and \fBdebian/rules\fP are required configuration files to build a Debian binary package.)
 .sp
 The number \fIn\fP determines which configuration templates are generated.
 .sp
@@ -572,7 +548,7 @@ The number \fIn\fP determines which configuration templates are generated.
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fB\-x0\fP: all required configuration template files. (selected option if any of these files already exist)
+\fB\-x0\fP: all required configuration template files. (selected option if any of these required files already exist)
 .RE
 .sp
 .RS 4
@@ -594,7 +570,7 @@ The number \fIn\fP determines which configuration templates are generated.
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fB\-x2\fP: all \fB\-x1\fP files + normal configuration template files with maintainer script supports.
+\fB\-x2\fP: all \fB\-x1\fP files + normal configuration template files with maintainer script supports. (default)
 .RE
 .sp
 .RS 4
@@ -605,7 +581,7 @@ The number \fIn\fP determines which configuration templates are generated.
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fB\-x3\fP: all \fB\-x2\fP files + optional configuration template files. (default optuin)
+\fB\-x3\fP: all \fB\-x2\fP files + optional configuration template files.
 .RE
 .sp
 .RS 4
@@ -628,14 +604,14 @@ Existing configuration files are never overwritten.  If you wish to update some 
 \(lqforce yes\(rq for all prompts. (without option: \(lqask [Y/n]\(rq; doubled option: \(lqforce no\(rq)
 .RE
 .sp
-\fB\-L\fP, \fB\-\-local\fP
-.RS 4
-generate configuration files for the local package to fool \fBlintian\fP(1) checks.
-.RE
-.sp
 \fB\-T\fP, \fB\-\-tutorial\fP
 .RS 4
 output tutorial comment lines in template files.  default when \fB\-x3\fP or \fB\-x4\fP is set.
+.RE
+.sp
+\fB\-B\fP, \fB\-\-backup\fP
+.RS 4
+for existing template files, create new template files with \fB.bkup\fP suffix and keep the existing ones.
 .RE
 .SH "EXAMPLES"
 .sp
@@ -778,7 +754,7 @@ Although \fBdebmake\fP is meant to provide template files for the package mainta
 .URL "https://www.debian.org/doc/debian\-policy/" "Debian Policy Manual" "\(rq."
 All template files generated by \fBdebmake\fP are required to be modified manually.
 .sp
-There are 2 positive points for \fBdebmake\fP:
+There are some points for \fBdebmake\fP:
 .sp
 .RS 4
 .ie n \{\
@@ -804,7 +780,38 @@ There are 2 positive points for \fBdebmake\fP:
 \fBdebmake\fP provides short extracted license texts as \fBdebian/copyright\fP in decent accuracy to help license review.
 .RE
 .sp
-For license review, it is highly recommended to use other tools such as \fBlicensecheck\fP from the \fBlicensecheck\fP package.
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\(lqGuide for Debian Maintainers\(rq also serves as a tutorial with examples for the usage of debmake.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fBdebmake\fP internally calls \fBlicensecheck\fP from the \fBlicensecheck\fP package to create \fBdebian/copyright\fP if it doesn\(cqt exist.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fBdebmake\fP internally calls \fBlrc\fP from the \fBlicenserecon\fP package to verify \fBdebian/copyright\fP if it already exists.
+.RE
 .sp
 There are some limitations for what characters may be used as a part of the Debian package.  The most notable limitation is the prohibition of uppercase letters in the package name.  Here is a summary as a set of regular expressions:
 .sp
@@ -871,7 +878,7 @@ The character set in the environment variable \fB$DEBUG\fP determines the loggin
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBi\fP: \f(CRmain.py\fP logging
+\fBs\fP: program progress logging
 .RE
 .sp
 .RS 4
@@ -882,7 +889,7 @@ The character set in the environment variable \fB$DEBUG\fP determines the loggin
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBp\fP: \f(CRpara.py\fP logging
+\fBp\fP: key para[..] value logging
 .RE
 .sp
 .RS 4
@@ -893,7 +900,7 @@ The character set in the environment variable \fB$DEBUG\fP determines the loggin
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBs\fP: \f(CRcheckdep5.py\fP \f(CRcheck_format_style()\fP logging
+\fBP\fP: all para[..] value logging
 .RE
 .sp
 .RS 4
@@ -904,128 +911,7 @@ The character set in the environment variable \fB$DEBUG\fP determines the loggin
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBy\fP: \f(CRcheckdep5.py\fP \f(CRsplit_years_name()\fP logging
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fBb\fP: \f(CRcheckdep5.py\fP \f(CRparse_lines()\fP 1 logging \(em content_state scan loop: begin\-loop
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fBm\fP: \f(CRcheckdep5.py\fP \f(CRparse_lines()\fP 2 logging \(em content_state scan loop: after regex match
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fBe\fP: \f(CRcheckdep5.py\fP \f(CRparse_lines()\fP 3 logging \(em content_state scan loop: end\-loop
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fBa\fP: \f(CRcheckdep5.py\fP \f(CRparse_lines()\fP 4 logging \(em print author/translator section text
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fBf\fP: \f(CRcheckdep5.py\fP \f(CRcheck_all_license()\fP 1 logging \(em input filename for the copyright scan
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fBl\fP: \f(CRcheckdep5.py\fP \f(CRcheck_all_license()\fP 2 logging \(em print license section text
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fBc\fP: \f(CRcheckdep5.py\fP \f(CRcheck_all_license()\fP 3 logging \(em print copyright section text
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fBk\fP: \f(CRcheckdep5.py\fP \f(CRcheck_all_license()\fP 4 logging \(em sort key for debian/copyright stanza
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fBr\fP: \f(CRsed.py\fP logging
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fBw\fP: \f(CRcat.py\fP logging
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fBn\fP: \f(CRkludge.py\fP logging (\(lq\fBdebmake \-k\fP\(rq)
+\fBd\fP: para["debs"] value logging
 .RE
 .sp
 Use this feature as:
@@ -1033,15 +919,15 @@ Use this feature as:
 .if n .RS 4
 .nf
 .fam C
- $ DEBUG=ipsybmeaflckrwn debmake ...
+ $ DEBUG=spd debmake ...
 .fam
 .fi
 .if n .RE
 .sp
-See \fBREADME.developer\fP in the source for more.
+See \fBREADME.md\fP in the source for more.
 .SH "AUTHOR"
 .sp
-Copyright © 2014\-2024 Osamu Aoki \c
+Copyright © 2014\-2026 Osamu Aoki \c
 .MTO "osamu\(atdebian.org" "" ""
 .SH "LICENSE"
 .sp
@@ -1052,4 +938,4 @@ The \fBdebmake\-doc\fP package provides the \(lq\c
 .URL "https://www.debian.org/doc/manuals/debmake\-doc/" "Guide for Debian Maintainers" "\(rq"
 in plain text, HTML and PDF formats under the \fB/usr/share/doc/debmake\-doc/\fP directory.
 .sp
-See also \fBdpkg\-source\fP(1), \fBdeb\-control\fP(5), \fBdebhelper\fP(7), \fBdh\fP(1), \fBdpkg\-buildpackage\fP(1), \fBdebuild\fP(1), \fBquilt\fP(1), \fBdpkg\-depcheck\fP(1), \fBsbuild\fP(1), \fBgbp\-buildpackage\fP(1), and \fBgbp\-pq\fP(1) manpages.
+See also \fBlicensecheck\fP(1), \fBlrc\fP(1), \fBdpkg\-source\fP(1), \fBdeb\-control\fP(5), \fBdebhelper\fP(7), \fBdh\fP(1), \fBdpkg\-buildpackage\fP(1), \fBdebuild\fP(1), \fBquilt\fP(1), \fBdpkg\-depcheck\fP(1), \fBsbuild\fP(1), \fBgbp\-buildpackage\fP(1), and \fBgbp\-pq\fP(1) manpages.

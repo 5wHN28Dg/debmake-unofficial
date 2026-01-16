@@ -8,7 +8,7 @@ Build-Depends:
  pybuild-plugin-pyproject,
  python3,
  python3-setuptools,
-Standards-Version: 4.7.0
+Standards-Version: 4.7.3
 Homepage: https://salsa.debian.org/debian/debmake
 Vcs-Git: https://salsa.debian.org/debian/debmake.git
 Vcs-Browser: https://salsa.debian.org/debian/debmake
@@ -17,8 +17,10 @@ Package: debmake
 Architecture: all
 Multi-Arch: foreign
 Depends:
- devscripts,
  dpkg-dev,
+ devscripts,
+ licensecheck,
+ licenserecon,
  python3-debian,
  rsync,
  ${misc:Depends},
@@ -28,14 +30,14 @@ Recommends:
  strace,
  wget | curl,
 Suggests:
+ dh-autoreconf,
+ dh-python,
+ dh-sequence-single-binary,
  autotools-dev,
  ccache,
  cmake,
  debmake-doc,
  dgit,
- dh-autoreconf,
- dh-python,
- dh-sequence-single-binary,
  eatmydata,
  gem2deb,
  git,

@@ -1,1 +1,13 @@
-Tests: testcode1.sh, testcode2.sh
+Tests:
+ testcode1.sh,
+ testcode2.sh,
+ testcode3.sh,
+ testcode31.sh,
+ testcode32.sh,
+ testcode33.sh,
+ testcode34.sh,
+ testcode35.sh,
+ testcode36.sh,
+ testcode4.sh,
+ testcode5.sh,
+ testcode6.sh,

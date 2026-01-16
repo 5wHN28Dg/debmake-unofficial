@@ -105,6 +105,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3 :: Only",
   # Others
   "Operating System :: POSIX :: Linux",
@@ -155,8 +156,6 @@ classifiers = [
 # which executes the function `main` from this package when invoked.
 [project.scripts]
 debmake = "debmake.__main__:main"
-debmake-lc = "debmake.lc:lc_main"
-debmake-dep5 = "debmake.checkdep5:checkdep5_main"
 
 # This is configuration specific to the `setuptools` build backend.
 # If you are using a different build backend, you will need to change this.
@@ -168,5 +167,5 @@ include-package-data = true
 
 # If there are data files included in your packages that need to be
 # installed, specify them here.
-package-data = {"debmake" = ["data/*.txt", "data/*.sh"]}
+package-data = {"debmake" = ["data/*"]}
 
