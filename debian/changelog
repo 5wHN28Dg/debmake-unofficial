@@ -1,3 +1,14 @@
+debmake (5.0.0) unstable; urgency=medium
+
+  * black+isort
+  * Remove unused code and data
+  * Rename scanfiles.py -> scanext.py
+  * Reorganize template files in data/*
+  * Refactor src/debmake/*.py (Closes: #1090069, #924658, #1090070, #1124821)
+  * Update packaging and documentation
+
+ -- Osamu Aoki <osamu@debian.org>  Fri, 16 Jan 2026 22:59:08 +0900
+
 debmake (4.5.4) unstable; urgency=medium
 
   * update d/upstream/metadata (Closes: #1092184)
