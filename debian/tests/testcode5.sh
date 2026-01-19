@@ -3,7 +3,7 @@
 LC_ALL=en_US.UTF-8
 export LC_ALL
 
-# non-native from archiveorig.tar.xz using -a
+# non-native from archive.orig.tar.xz using -a
 PROJECT=foo-5.0
 PROJECTX=foo_5.0
 rm -f ${PROJECTX}*.tar.?z
