@@ -1,3 +1,10 @@
+debmake (5.0.1) unstable; urgency=medium
+
+  * Fix project/ with -u error
+  * More test case
+
+ -- Osamu Aoki <osamu@debian.org>  Tue, 20 Jan 2026 00:31:33 +0900
+
 debmake (5.0.0) unstable; urgency=medium
 
   * black+isort
