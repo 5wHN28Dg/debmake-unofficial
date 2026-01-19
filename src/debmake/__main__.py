@@ -67,20 +67,20 @@ def main():
         "I: {}".format(para["program_copyright"]),
         file=sys.stderr,
     )
-    para["start_dir"] = os.path.abspath(".")
+    para["start_dir"] = os.getcwd()
     para["home_dir"] = os.path.expanduser("~")  # this is constant
     debmake.debug.debug(
         "s",
         para,
         "D: the starting directory @ ~/{}".format(
-            os.path.relpath(".", para["home_dir"])
+            os.path.relpath(os.getcwd(), para["home_dir"])
         ),
     )
     debmake.debug.debug(
         "s", para, "D: PATHs below are relative to the starting directory"
     )
-    para["base_dir"] = os.path.relpath("..", para["home_dir"])  # tar.xz file here
-    para["source_dir"] = os.path.relpath(".", para["home_dir"])  # untared source here
+    para["base_dir"] = os.path.abspath("..")  # tar.xz file here
+    para["source_dir"] = os.path.basename(os.getcwd())  # untared source here
     para["debmake_dir"] = ""  # debian/* generated here
     para["date"] = time.strftime("%a, %d %b %Y %H:%M:%S %z")
     para["shortdate"] = time.strftime("%d %b %Y")
@@ -103,7 +103,9 @@ def main():
     # parse command argument
     #######################################################################
     debmake.debug.debug(
-        "s", para, "D: @pre-para @ {}".format(os.path.relpath(".", para["start_dir"]))
+        "s",
+        para,
+        "D: @pre-para @ {}".format(os.path.relpath(os.getcwd(), para["start_dir"])),
     )
     debmake.para.para(para)
     debmake.debug.debug("p", para, "D: @post-para")
@@ -120,7 +122,9 @@ def main():
     # sanity check parameters without digging deep into source tree
     #######################################################################
     debmake.debug.debug(
-        "s", para, "D: @pre-sanity @ {}".format(os.path.relpath(".", para["start_dir"]))
+        "s",
+        para,
+        "D: @pre-sanity @ {}".format(os.path.relpath(os.getcwd(), para["start_dir"])),
     )
     debmake.sanity.sanity(para)
     debmake.debug.debug("p", para, "D: @post-sanity")
@@ -133,7 +137,7 @@ def main():
         debmake.debug.debug(
             "s",
             para,
-            "D: @pre-dist @ {}".format(os.path.relpath(".", para["start_dir"])),
+            "D: @pre-dist @ {}".format(os.path.relpath(os.getcwd(), para["start_dir"])),
         )
         debmake.dist.dist(para)
         debmake.debug.debug("p", para, "D: @post-dist")
@@ -148,7 +152,9 @@ def main():
         debmake.debug.debug(
             "s",
             para,
-            "D: @pre-untar @ {}".format(os.path.relpath(".", para["start_dir"])),
+            "D: @pre-untar @ {}".format(
+                os.path.relpath(os.getcwd(), para["start_dir"])
+            ),
         )
         debmake.untar.untar(para)
         print("I: $ cd {}".format(para["debmake_dir"]), file=sys.stderr)
@@ -157,16 +163,16 @@ def main():
     #######################################################################
     # debmake source tree in package-version/
     #######################################################################
-    if (not para["native"]) and (
-        para["debmake_dir"] != os.path.basename(os.path.abspath("."))
-    ):
+    if (not para["native"]) and (para["debmake_dir"] != os.path.basename(os.getcwd())):
         # normal non-native packaging not on para["debmake_dir"]=package-version path
         print("I: $ cd ..", file=sys.stderr)
         os.chdir("..")
         debmake.debug.debug(
             "s",
             para,
-            "D: @pre-verdir @ {}".format(os.path.relpath(".", para["start_dir"])),
+            "D: @pre-verdir @ {}".format(
+                os.path.relpath(os.getcwd(), para["start_dir"])
+            ),
         )
         debmake.verdir.verdir(para)
         print("I: $ cd {}".format(para["debmake_dir"]), file=sys.stderr)
@@ -185,7 +191,7 @@ def main():
         debmake.debug.debug(
             "s",
             para,
-            "D: @pre-tar @ {}".format(os.path.relpath(".", para["start_dir"])),
+            "D: @pre-tar @ {}".format(os.path.relpath(os.getcwd(), para["start_dir"])),
         )
         debmake.tar.tar(para)
         debmake.debug.debug("p", para, "D: @post-tar")
@@ -217,7 +223,7 @@ def main():
             "s",
             para,
             "D: @pre-origtar (non-native all) @ {}".format(
-                os.path.relpath(".", para["start_dir"])
+                os.path.relpath(os.getcwd(), para["start_dir"])
             ),
         )
         debmake.origtar.origtar(para)
@@ -235,14 +241,16 @@ def main():
     #######################################################################
     # on para["debmake_dir"]=package-version path
     debmake.debug.debug(
-        "s", para, "D: @pre-debs @ {}".format(os.path.relpath(".", para["start_dir"]))
+        "s",
+        para,
+        "D: @pre-debs @ {}".format(os.path.relpath(os.getcwd(), para["start_dir"])),
     )
     debmake.debs.debs(para)
     debmake.debug.debug("d", para, "D: @post-debs")
     debmake.debug.debug(
         "s",
         para,
-        "D: @pre-analyze @ {}".format(os.path.relpath(".", para["start_dir"])),
+        "D: @pre-analyze @ {}".format(os.path.relpath(os.getcwd(), para["start_dir"])),
     )
     debmake.analyze.analyze(para)
     debmake.debug.debug("p", para, "D: @post-analyze")
@@ -261,20 +269,24 @@ def main():
         debmake.debug.debug(
             "s",
             para,
-            "D: @pre-judge @ {}".format(os.path.relpath(".", para["start_dir"])),
+            "D: @pre-judge @ {}".format(
+                os.path.relpath(os.getcwd(), para["start_dir"])
+            ),
         )
         debmake.judge.judge(para)
     elif para["invoke"]:
         debmake.debug.debug(
             "s",
             para,
-            "D: @pre-invoke @ {}".format(os.path.relpath(".", para["start_dir"])),
+            "D: @pre-invoke @ {}".format(
+                os.path.relpath(os.getcwd(), para["start_dir"])
+            ),
         )
         print("I: $ {}".format(para["invoke"]), file=sys.stderr)
         if subprocess.call(para["invoke"], shell=True) != 0:
             print("E: failed to build Debian package(s).", file=sys.stderr)
             exit(1)
-    current_dir = os.path.abspath(".")
+    current_dir = os.getcwd()
     if current_dir != para["start_dir"]:
         print(
             "I: debmake operated in the ~/{} directory".format(current_dir),

@@ -70,7 +70,7 @@ def verdir(para):
     # make distribution tarball using tar excluding debian/ directory
     # VCS tree are not copied.
     #######################################################################
-    # para["source_dir"] = os.path.dirname(os.path.abspath(os.getcwd()))
+    # para["source_dir"] = os.path.basename(os.getcwd())
     if para["debmake_dir"] == para["source_dir"]:
         print("I: already in the versioned parent directory", file=sys.stderr)
     else:

@@ -50,7 +50,6 @@ def yn(mes, command, yes):
     else:
         print('E: terminating since "n" chosen at Y/n question.', file=sys.stderr)
         exit(1)
-    print('I: pwd = "{}"'.format(os.getcwd()), file=sys.stderr)
     return
 
 

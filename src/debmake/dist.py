@@ -214,9 +214,7 @@ def dist(para):
             "W: you may update program name and version in source as needed.",
             file=sys.stderr,
         )
-    if (para["package"] + "-" + para["version"]) == os.path.basename(
-        os.path.abspath(os.getcwd())
-    ):
+    if (para["package"] + "-" + para["version"]) == os.path.basename(os.getcwd()):
         print(
             'E: "debmake --dist" should not be used for the source tree checked out to versioned {}-{}/" direcory.'.format(
                 para["package"], para["version"]
@@ -234,8 +232,8 @@ def dist(para):
     #######################################################################
     # create properly named tarball in the parent directory
     #######################################################################
-    # para["base_dir"] = os.path.abspath("../" + os.getcwd()) # tar.xz file here
-    # para["source_dir"] = os.path.basename(os.path.abspath(os.getcwd())) # git checkout here
+    # para["base_dir"] = os.path.abspath("..") # tar.xz file here
+    # para["source_dir"] = os.path.basename(os.getcwd()) # git checkout here
     para["tarball"] = para["package"] + "-" + para["version"] + "." + para["tarxz"]
     if os.path.exists("../" + para["tarball"]):
         msg = 'Overwrite existing "{}"'.format("../" + para["tarball"])

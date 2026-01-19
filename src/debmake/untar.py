@@ -68,7 +68,7 @@ def untar(para):
     if not os.path.exists(para["tarball"]):
         print(
             'E: missing the "{}" file in "{}" directory. (untar)'.format(
-                para["tarball"], os.getcwd()
+                para["tarball"], os.path.relpath(os.getcwd(), para["start_dir"])
             ),
             file=sys.stderr,
         )
