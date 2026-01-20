@@ -238,7 +238,7 @@ Argument may need to be quoted to protect from the shell.
         "--backup",
         action="store_true",
         default=False,
-        help="for existing template files, create new template files with .bkup suffix and keep the existing ones",
+        help="create new template files with .ex suffix and keep the user editted ones without .ex",
     )
     args = p.parse_args()
     #######################################################################

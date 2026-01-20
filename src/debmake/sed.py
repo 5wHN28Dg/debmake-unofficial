@@ -30,21 +30,18 @@ import debmake.cat
 
 
 #######################################################################
-def sed(confmask, destdir, substlist, package, para):
+def sed(confmask, destdir, substlist, binpackagedot, para):
     ###################################################################
-    # confmask:   configuration file path glob mask with *
-    # destdir:   destination directory with / at the end
-    # substlist: substitution dictionary
-    # package:   binary package name
-    # para:      global variable
+    # confmask:      configuration file path glob mask with *
+    # destdir:       destination directory with / at the end
+    # substlist:     substitution dictionary
+    # binpackagedot: binary package name with tailing dot or ""
+    # para:          global variable
     ###################################################################
     len_data_path = len(para["data_path"])
     for file in glob.glob(para["data_path"] + confmask):
         destname = file[len_data_path + file[len_data_path:].find("_") + 1 :]
-        if destname[: len("package")] == "package":
-            newfile = destdir + package + destname[len("package") :]
-        else:
-            newfile = destdir + destname
+        newfile = destdir + binpackagedot + destname
         print(
             "I: creating {} from {}".format(newfile, file[len_data_path:]),
             file=sys.stderr,
@@ -65,6 +62,7 @@ if __name__ == "__main__":
     substlist = {
         "@BINPACKAGE@": "binpackage",
         "@PACKAGE@": "package",
+        "@PACKAGEDOT@": "package.",
         "@UCPACKAGE@": "package".upper(),
         "@YEAR@": "2014",
         "@FULLNAME@": "fullname",

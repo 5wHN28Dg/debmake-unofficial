@@ -139,17 +139,17 @@ def analyze(para):
     para["scripts"] = []
     for i, deb in enumerate(para["debs"]):
         if deb["type"] == "bin":
-            para["bin"].append(deb["package"])
+            para["bin"].append(deb["binpackage"])
         elif deb["type"] == "lib":
-            para["lib"].append(deb["package"])
+            para["lib"].append(deb["binpackage"])
         elif deb["type"] == "dev":
-            para["dev"].append(deb["package"])
+            para["dev"].append(deb["binpackage"])
         elif deb["type"] == "doc":
-            para["doc"].append(deb["package"])
+            para["doc"].append(deb["binpackage"])
         elif deb["type"] == "data":
-            para["data"].append(deb["package"])
+            para["data"].append(deb["binpackage"])
         else:
-            para["scripts"].append(deb["package"])
+            para["scripts"].append(deb["binpackage"])
     if len(para["debs"]) != 1 and len(para["dev"]) != len(para["lib"]):
         print(
             'E: # of "dev":{} != # of "lib": {}.'.format(
@@ -177,7 +177,7 @@ def analyze(para):
         elif deb["type"] == "lib":
             para["export"].update({"compiler"})
         elif deb["type"] == "dev":
-            pkg = masterdev(deb["package"])
+            pkg = masterdev(deb["binpackage"])
             match = False
             for libpkg in para["lib"]:
                 if libpkg[: len(pkg)] == pkg:
@@ -189,7 +189,7 @@ def analyze(para):
             if not match:
                 print(
                     'E: {} does not have matching library in "{}".'.format(
-                        deb["package"], ", ".join(para["lib"])
+                        deb["binpackage"], ", ".join(para["lib"])
                     ),
                     file=sys.stderr,
                 )

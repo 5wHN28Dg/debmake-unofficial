@@ -31,33 +31,40 @@ import debmake.debug
 #######################################################################
 # cat >file
 def cat(file, text, para):
-    # para: global variable
-    if os.path.isfile(file) and os.stat(file).st_size != 0:
+    file_write = file
+    file_noex = file
+    if file[-3:] == ".ex":
+        file_noex = file[:-3]
+    if os.path.exists(file_noex) and os.stat(file_noex).st_size != 0:
         if para["backup"]:
-            file = file + ".bkup"
+            if file_noex == file:
+                # not *.ex -> write *.ex as backup
+                file_write = file + ".ex"
+            else:
+                file_write = file
         else:
-            # skip if a file exists and non-zero content
-            print(
-                "I: skipping : {} (use --backup option to avoid skipping)".format(file),
-                file=sys.stderr,
-            )
-            return
-    newtext = ""
-    for line in text.split("\n"):
-        newtext += line + "\n"
-    newtext = newtext.rstrip() + "\n"
-    file_dirpath = os.path.dirname(file)
-    if file_dirpath:
-        os.makedirs(file_dirpath, exist_ok=True)
-    with open(file, mode="w", encoding="utf-8") as f:
-        print(newtext, file=f, end="")
-        debmake.debug.debug(
-            "s",
-            para,
-            'D: output to "{}" as\n========vvvvvvvv\n{}\n========^^^^^^^^'.format(
-                file, newtext
-            ),
+            file_write = ""
+    if file_write == "":
+        # skip if a file exists and non-zero content
+        print(
+            "I: skipping: {} (use --backup option to avoid skipping)".format(file),
+            file=sys.stderr,
         )
+    else:
+        newtext = ""
+        for line in text.split("\n"):
+            newtext += line + "\n"
+        newtext = newtext.rstrip() + "\n"
+        file_dirpath = os.path.dirname(file)
+        if file_dirpath:
+            os.makedirs(file_dirpath, exist_ok=True)
+        with open(file_write, mode="w", encoding="utf-8") as f:
+            print(newtext, file=f, end="")
+            debmake.debug.debug(
+                "s",
+                para,
+                'D: output to "{}"'.format(file_write),
+            )
     return
 
 
@@ -66,9 +73,35 @@ def cat(file, text, para):
 #######################################################################
 if __name__ == "__main__":
     para = {}
-    para["backup"] = False
-    cat("testfile0.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", para)
-    cat("testfile1.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", para)
-    cat("testfile1.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", para)
     para["backup"] = True
-    cat("testfile1.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    file1 = "00_testfile0"
+    file2 = "00_testfile0"
+    print('{} -> {} with para["backup"] = {}'.format(file1, file2, para["backup"]))
+    cat(file1, "0fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    cat(file2, "1fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    file1 = "00_testfile1"
+    file2 = "00_testfile1.ex"
+    print('{} -> {} with para["backup"] = {}'.format(file1, file2, para["backup"]))
+    cat(file1, "0fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    cat(file2, "1fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    file1 = "00_testfile2.ex"
+    file2 = "00_testfile2.ex"
+    print('{} -> {} with para["backup"] = {}'.format(file1, file2, para["backup"]))
+    cat(file1, "0fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    cat(file2, "1fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    para["backup"] = False
+    file1 = "00_testfile3"
+    file2 = "00_testfile3"
+    print('{} -> {} with para["backup"] = {}'.format(file1, file2, para["backup"]))
+    cat(file1, "0fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    cat(file2, "1fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    file1 = "00_testfile4"
+    file2 = "00_testfile4.ex"
+    print('{} -> {} with para["backup"] = {}'.format(file1, file2, para["backup"]))
+    cat(file1, "0fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    cat(file2, "1fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    file1 = "00_testfile5.ex"
+    file2 = "00_testfile4.ex"
+    print('{} -> {} with para["backup"] = {}'.format(file1, file2, para["backup"]))
+    cat(file1, "0fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    cat(file2, "1fooo\n###barrrr\n####CCCC\nbazzzzz", para)

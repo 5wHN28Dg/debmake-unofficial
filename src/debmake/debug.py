@@ -59,7 +59,7 @@ def debug(type, para, msg):
     elif type == "d" and "d" in env:
         print(msg, file=sys.stderr)
         for deb in para["debs"]:
-            print("  Binary Package: {}".format(deb["package"]), file=sys.stderr)
+            print("  Binary Package: {}".format(deb["binpackage"]), file=sys.stderr)
             print("    Architecture: {}".format(deb["arch"]), file=sys.stderr)
             print("    Multi-Arch:   {}".format(deb["multiarch"]), file=sys.stderr)
             print(

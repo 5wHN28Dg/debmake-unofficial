@@ -31,13 +31,20 @@ import debmake.read
 #######################################################################
 def control(para):
     print("I: creating debian/control by control.py", file=sys.stderr)
+    # number of binary Debian packages
     ndebs = len(para["debs"])
+    # set of binary Debian package types
     types = set()
     for deb in para["debs"]:
         types.add(deb["type"])
+    # number of binary Debian package types
     ntypes = len(types)
-    #
-    msg = control_src(para)
+
+    ###################################################################
+    # para["desc"] and para["desc_long"] may be set by the caller with
+    # properly formatted, i.e., each line prefixed by " "
+    ###################################################################
+    # This provides fall back values for descriptions
     if para["desc"].strip():
         desc = para["desc"].strip()
     else:
@@ -48,56 +55,37 @@ def control(para):
     elif para["desc"].strip():
         desc_long = " " + para["desc"].strip()
     else:
-        desc_long = ""
-    if desc_long:
-        desc_long_xtra = ""
-    else:
-        desc_long_xtra = debmake.read.read(
-            para["data_path"] + "extra0desc_long__long"
+        desc_long = debmake.read.read(
+            para["data_path"] + "extra0desc_long__common"
         ).rstrip()
+    ###################################################################
+    # debian/control source package description
+    msg = control_src(para)
+    ###################################################################
+    # debian/control binary package description
+    ###################################################################
     for i, deb in enumerate(para["debs"]):
-        desc_long_type = debmake.read.read(
-            para["data_path"] + "extra0desc_long_" + deb["type"]
-        ).rstrip()
+        #
         if ndebs == 1:  # single binary
             deb["desc"] = desc
         elif ndebs == ntypes:  # all uniq *type* -> no index
             deb["desc"] = desc + ": {}".format(deb["type"])
-        else:
+        else:  # add index
             deb["desc"] = desc + ": {} #{}".format(deb["type"], i)
+        #
+        # deb["type"] can't have "_common"
+        desc_long_type = debmake.read.read(
+            para["data_path"] + "extra0desc_long_" + deb["type"]
+        ).rstrip()
+        #
         if ndebs == 1:  # single binary
-            if desc_long:
-                deb["desc_long"] = desc_long + "\n"
-            else:
-                deb["desc_long"] = desc_long_xtra + "\n"
+            deb["desc_long"] = desc_long + "\n"
         elif ndebs == ntypes:  # all uniq *type* -> no index
-            if i == 0:
-                if desc_long:
-                    deb["desc_long"] = desc_long_type + "\n .\n" + desc_long + "\n"
-                else:
-                    deb["desc_long"] = desc_long_type + "\n .\n" + desc_long_xtra + "\n"
-            else:
-                if desc_long:
-                    deb["desc_long"] = desc_long_type + "\n .\n" + desc_long + "\n"
-                else:
-                    deb["desc_long"] = desc_long_type + "\n"
+            deb["desc_long"] = desc_long_type + "\n .\n" + desc_long + "\n"
         else:
-            if i == 0:
-                if desc_long:
-                    deb["desc_long"] = (
-                        desc_long_type + ": #{}\n .\n".format(i) + desc_long + "\n"
-                    )
-                else:
-                    deb["desc_long"] = (
-                        desc_long_type + ": #{}\n .\n".format(i) + desc_long_xtra + "\n"
-                    )
-            else:
-                if desc_long:
-                    deb["desc_long"] = (
-                        desc_long_type + ": #{}\n .\n".format(i) + desc_long + "\n"
-                    )
-                else:
-                    deb["desc_long"] = desc_long_type + ": #{}\n".format(i)
+            deb["desc_long"] = (
+                desc_long_type + ": #{}\n .\n".format(i) + desc_long + "\n"
+            )
         msg += control_bin(para, deb)
     return msg
 
@@ -114,7 +102,7 @@ Standards-Version: {6}
 Homepage: {7}
 Rules-Requires-Root: no
 {8}: {9}
-{10}: {11}
+#Vcs-Browser: https://salsa.debian.org/debian/<project_site>
 """.format(
         para["package"],
         para["section"],
@@ -126,8 +114,6 @@ Rules-Requires-Root: no
         para["homepage"],
         guess_vcsvcs(para["vcsvcs"]),
         para["vcsvcs"],
-        guess_vcsbrowser(para["vcsbrowser"]),
-        para["vcsbrowser"],
     )
     # anything for perl and others XXX FIXME XXX
     msg += "\n"
@@ -155,26 +141,6 @@ def guess_vcsvcs(vcsvcs):
 
 
 #######################################################################
-def guess_vcsbrowser(vcsbrowser):
-    if re.search(r"\.git$", vcsbrowser):
-        return "#Vcs-Browser"
-    elif re.search(r"\.hg$", vcsbrowser):
-        return "#Vcs-Browser"
-    elif re.search(r"^:pserver:", vcsbrowser):
-        # CVS :pserver:anonymous@anonscm.debian.org:/cvs/webwml
-        return "#Vcs-Browser"
-    elif re.search(r"^:ext:", vcsbrowser):
-        # CVS :ext:username@cvs.debian.org:/cvs/webwml
-        return "#Vcs-Browser"
-    elif re.search(r"^svn[:+]", vcsbrowser):
-        # SVN svn://svn.debian.org/ddp/manuals/trunk manuals
-        # SVN svn+ssh://svn.debian.org/svn/ddp/manuals/trunk
-        return "#Vcs-Browser"
-    else:
-        return "#Vcs-Browser"
-
-
-#######################################################################
 def control_bin(para, deb):
     # non M-A
     if para["monoarch"]:
@@ -195,7 +161,7 @@ def control_bin(para, deb):
     elif deb["type"] == "doc":
         section = "Section: doc\n"
     else:
-        section = ""
+        section = "Section: unknown\n"
     ###################################################################
     return """\
 Package: {0}
@@ -204,7 +170,7 @@ Package: {0}
 Description: {6}
 {7}
 """.format(
-        deb["package"],
+        deb["binpackage"],
         section,
         deb["arch"],
         multiarch,
@@ -234,13 +200,13 @@ if __name__ == "__main__":
     para["vcsbrowser"] = "https://anonscm.debian.org"
     para["debs"] = []
     para["dh_with"] = set()
-    para["desc"] = "DUMMY_DESC"
-    para["desc_long"] = "DUMMY_DESC_LONG"
+    para["desc"] = " DUMMY_DESC"
+    para["desc_long"] = " DUMMY_DESC_LONG"
     para["data_path"] = "data/"
     print(control(para))
     print("***********************************************************")
     para["dh_with"] = set({"python3"})
-    para["binaryspec"] = "-:python3,-doc:doc,lib"
+    para["binaryspec"] = "-:python3,-doc:doc,-html:doc,lib"
     para["monoarch"] = False
     debs.debs(para)
     print(control(para))

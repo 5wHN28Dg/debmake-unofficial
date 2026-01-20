@@ -72,8 +72,6 @@ def debian(para):
     ###################################################################
     # common variables
     ###################################################################
-    deb_package0 = para["debs"][0]["package"]  # the first binary package name
-    deb_type0 = para["debs"][0]["type"]  # the first binary package type
     substlist = {
         "@PACKAGE@": para["package"],
         "@UCPACKAGE@": para["package"].upper(),
@@ -83,7 +81,8 @@ def debian(para):
         "@SHORTDATE@": para["shortdate"],
         "@DATE@": para["date"],
         "@DEBMAKEVER@": para["program_version"],
-        "@BINPACKAGE@": deb_package0,  # place holder
+        "@BINPACKAGE@": para["debs"][0]["binpackage"],
+        "@BINPACKAGEDOT@": "",
         "@COMPAT@": para["compat"],
     }
     if para["native"]:
@@ -162,12 +161,17 @@ def debian(para):
         )
 
     ###################################################################
-    # generate/verify minimum 5 configuration files (extra=0-4).
+    # generate/verify minimum configuration files (extra=0-4).
+    #  debian/copyright
+    #  debian/control
+    #  debian/changelog
+    #  debian/rules
+    #  debian/source/format
     ###################################################################
     # ensure debian/ directory to exist
     os.makedirs("debian", exist_ok=True)
     # debian/copyright (generate or verify)
-    if not os.path.isfile("debian/copyright"):
+    if not os.path.exists("debian/copyright"):
         # generate debian/copyright
         command = (
             "licensecheck --recursive --copyright --deb-machine . > debian/copyright"
@@ -194,34 +198,53 @@ def debian(para):
     # debian/control
     debmake.cat.cat("debian/control", debmake.control.control(para), para)
     # debian/changelog, debian/rules
-    debmake.sed.sed("extra0_*", "debian/", substlist, deb_package0, para)
+    debmake.sed.sed("extra0_*", "debian/", substlist, "", para)
     os.chmod("debian/rules", 0o755)
     # debian/source/format
     debmake.sed.sed(
         "extra0source_*",
         "debian/source/",
         substlist,
-        deb_package0,
+        "",
         para,
     )
     ###################################################################
     # generate desirable configuration files, if missing (extra=1-4).
+    # some templates are produced only for the first binary package.
     ###################################################################
     if extra >= 1:
-        # README.Debian, README.source, clean, gbp.conf, salsa-ci.yml, watch
+        # debian/clean
+        # debian/dirs
+        # debian/docs
+        # debian/examples
+        # debian/gbp.conf
+        # debian/links
+        # debian/manpages
+        # debian/README.Debian
+        # debian/README.source
+        # debian/salsa-ci.yml
         debmake.sed.sed(
             "extra1_*",
             "debian/",
             substlist,
-            deb_package0,
+            "",
             para,
         )
-        # test/control
+        if not para["native"]:
+            # debian/watch
+            debmake.sed.sed(
+                "extra1nn_*",
+                "debian/",
+                substlist,
+                "",
+                para,
+            )
+        # tests/control
         debmake.sed.sed(
             "extra1tests_*",
             "debian/tests/",
             substlist,
-            deb_package0,
+            "",
             para,
         )
         # upstream/metadata
@@ -229,85 +252,57 @@ def debian(para):
             "extra1upstream_*",
             "debian/upstream/",
             substlist,
-            deb_package0,
+            "",
             para,
         )
         if not para["native"]:
-            # non-native and extra=1-3
             # patches/series
             debmake.sed.sed(
                 "extra1patches_*",
                 "debian/patches/",
                 substlist,
-                deb_package0,
-                para,
-            )
-        if len(para["debs"]) == 1:
-            # install, links, dirs, docs, examples for single binary deb
-            debmake.sed.sed(
-                "extra1single_*",
-                "debian/",
-                substlist,
-                deb_package0,
-                para,
-            )
-            if deb_type0 == "doc":
-                # info, doc-base, manpages  for single doc binary deb
-                debmake.sed.sed(
-                    "extra1single.doc_*",
-                    "debian/",
-                    substlist,
-                    deb_package0,
-                    para,
-                )
-        else:
-            # package.links, package.dirs for multi-binary debs
-            #  * don't repeat over binary packages for simplicity
-            #
-            # package.install package.docs, ... will be generated at
-            # the last with repeat over binary packages
-            debmake.sed.sed(
-                "extra1multi_*",
-                "debian/",
-                substlist,
-                deb_package0,
+                "",
                 para,
             )
     ###################################################################
     # generate basic .ex configuration files, if missing (extra=2-4).
     ###################################################################
     if extra >= 2:
+        # bug-control.ex
+        # bug-presubj.ex
+        # bug-script.ex
+        # maintscript.ex
+        # manpage.1.ex
+        # doc-base.ex
+        # info.ex
+        # lintian-overrides.ex
         debmake.sed.sed(
             "extra2_*",
             "debian/",
             substlist,
-            deb_package0,
+            "",
             para,
         )
+        debmake.sed.sed("extra2source_*", "debian/source/", substlist, "", para)
         if not para["native"]:
-            # source/local-options.ex source/local-patch-header.ex
+            # source/local-options.ex
+            # source/local-patch-header.ex
+            # source/options.ex
+            # source/patch-header.ex
+            # source/lintian-overrides.ex
             debmake.sed.sed(
                 "extra2source.nn_*",
                 "debian/source/",
                 substlist,
-                deb_package0,
+                "",
                 para,
             )
-        if len(para["debs"]) == 1:
-            # single binary .ex templates
-            debmake.sed.sed("extra2single_*", "debian/", substlist, deb_package0, para)
-        else:
-            # multi-binary .ex templates only for the first binary package
-            debmake.sed.sed("extra2multi_*", "debian/", substlist, deb_package0, para)
     ###################################################################
     # generate typical optional .ex configuration files, if missing (extra=3, 4).
     ###################################################################
     # create templates only for the first binary package
     if extra >= 3:
-        debmake.sed.sed("extra3_*", "debian/", substlist, deb_package0, para)
-        debmake.sed.sed(
-            "extra3source_*", "debian/source/", substlist, deb_package0, para
-        )
+        debmake.sed.sed("extra3_*", "debian/", substlist, "", para)
     ###################################################################
     # generate all optional .ex configuration files, if missing (extra=4).
     ###################################################################
@@ -317,38 +312,34 @@ def debian(para):
             "extra4_*",
             "debian/",
             substlist,
-            deb_package0,
+            "",
             para,
         )
-        if not para["native"]:
-            # non-native and extra=4
-            debmake.sed.sed(
-                "extra4source.nn_*",
-                "debian/source/",
-                substlist,
-                deb_package0,
-                para,
-            )
     ###################################################################
     # generate desirable configuration files, if missing (extra=1-4).
-    #  - loop over binary packages by setting substlist["@BINPACKAGE@"]
+    #  - loop over binary packages
     ###################################################################
     if extra >= 1:
-        if len(para["debs"]) > 1:
-            # package-install, package.docs for multi-binary debs
-            for deb in para["debs"]:
-                substlist["@BINPACKAGE@"] = deb["package"]
-                deb_type = deb["type"]
-                if deb_type in exec_deb_type_list:
-                    deb_type = "bin"
-                # deb_type is reduced to {bin, data, dev, doc, lib}
-                debmake.sed.sed(
-                    "extra1multi." + deb_type + "_*",
-                    "debian/",
-                    substlist,
-                    deb["package"],  # use binpackage name
-                    para,
-                )
+        # package-install, package.docs for multi-binary debs
+        for deb in para["debs"]:
+            substlist["@BINPACKAGE@"] = deb["binpackage"]
+            if len(para["debs"]) == 1:
+                binpackagedot = ""
+            else:
+                binpackagedot = substlist["@BINPACKAGE@"] + "."
+            substlist["@BINPACKAGEDOT@"] = binpackagedot
+            deb_type = deb["type"]
+            if deb_type in exec_deb_type_list:
+                deb_type = "bin"
+
+            # deb_type is reduced to {bin, data, dev, doc, lib}
+            debmake.sed.sed(
+                "extra1" + deb_type + "_*",
+                "debian/",
+                substlist,
+                binpackagedot,
+                para,
+            )
     ###################################################################
     # wrap-and-sort -vast
     # comments may be reordered to be placed after an empty line

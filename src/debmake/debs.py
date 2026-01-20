@@ -79,6 +79,7 @@ def debs(para):
         ###################################################################
         # Prefix names should come first to be overridden later
         ###################################################################
+        # value of t becomes value of deb["type"] and it can't be "_common"
         if match_prefix(p, "lib"):
             a = "any"
             m = "same"
@@ -292,7 +293,7 @@ def debs(para):
         ###################################################################
         para["debs"].append(
             {
-                "package": p,
+                "binpackage": p,
                 "arch": a,
                 "multiarch": m,
                 "depends": dp,
