@@ -12,7 +12,10 @@ echo "DUMMY ${PROJECT}" > ${PROJECT}/dummy-${PROJECT}
 tar -cvzf ${PROJECT}.tar.gz ${PROJECT}
 cd ${PROJECT} || exit 1
 debmake -x0 2>&1
-debmake -x3 -B 2>&1
+cd .. || exit 1
+rm -f ${PROJECT}*.tar.?z
+cd ${PROJECT} || exit 1
+debmake -x3 -y -B 2>&1
 test -x debian/rules
 cd .. || exit 1
 

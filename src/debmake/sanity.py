@@ -237,7 +237,7 @@ def sanity(para):
                     ),
                 )
                 pkgver = re.match(
-                    r"^(?P<package>[^ \t]+)[ \t]+\(?P<version>([^()]+)-(?P<revision>[^-()]+)\)",
+                    r"^(?P<package>[^ \t]+)[ \t]+\((?P<version>[^()]+)-(?P<revision>[^-()]+)\)",
                     line,
                 )
                 if pkgver:
