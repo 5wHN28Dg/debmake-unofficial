@@ -52,14 +52,9 @@ def control(para):
     if desc_long:
         desc_long_xtra = ""
     else:
-        if para["tutorial"]:
-            desc_long_xtra = debmake.read.read(
-                para["data_path"] + "extra0desc_long__long_tutorial"
-            ).rstrip()
-        else:
-            desc_long_xtra = debmake.read.read(
-                para["data_path"] + "extra0desc_long__long"
-            ).rstrip()
+        desc_long_xtra = debmake.read.read(
+            para["data_path"] + "extra0desc_long__long"
+        ).rstrip()
     for i, deb in enumerate(para["debs"]):
         desc_long_type = debmake.read.read(
             para["data_path"] + "extra0desc_long_" + deb["type"]

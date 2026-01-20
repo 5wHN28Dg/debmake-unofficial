@@ -231,13 +231,8 @@ Argument may need to be quoted to protect from the shell.
     p.add_argument(
         "-y", "--yes", action="count", default=0, help='"force yes" for all prompts'
     )
-    p.add_argument(
-        "-T",
-        "--tutorial",
-        action="store_true",
-        default=False,
-        help="output tutorial comment lines in template files",
-    )
+    # This is removed option (now NOP)
+    p.add_argument("-T", "--tutorial", action="store_true", help=argparse.SUPPRESS)
     p.add_argument(
         "-B",
         "--backup",
@@ -297,7 +292,6 @@ Argument may need to be quoted to protect from the shell.
         para["tarxz"] = "tar.xz"
     else:
         para["tarxz"] = "tar.xz"
-    para["tutorial"] = args.tutorial  # -T
     para["backup"] = args.backup  # -B
     ############################################# -o
     if args.option:

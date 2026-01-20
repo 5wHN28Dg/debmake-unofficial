@@ -62,7 +62,6 @@ def sed(confmask, destdir, substlist, package, para):
 #######################################################################
 if __name__ == "__main__":
     para = {}
-    para["tutorial"] = False
     substlist = {
         "@BINPACKAGE@": "binpackage",
         "@PACKAGE@": "package",

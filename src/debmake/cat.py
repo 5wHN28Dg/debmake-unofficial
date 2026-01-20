@@ -43,16 +43,8 @@ def cat(file, text, para):
             )
             return
     newtext = ""
-    if para["tutorial"]:
-        for line in text.split("\n"):
-            if line[:3] != "###":
-                newtext += line + "\n"
-            else:
-                newtext += line[2:] + "\n"
-    else:
-        for line in text.split("\n"):
-            if line[:3] != "###":
-                newtext += line + "\n"
+    for line in text.split("\n"):
+        newtext += line + "\n"
     newtext = newtext.rstrip() + "\n"
     file_dirpath = os.path.dirname(file)
     if file_dirpath:
@@ -74,8 +66,9 @@ def cat(file, text, para):
 #######################################################################
 if __name__ == "__main__":
     para = {}
-    para["tutorial"] = False
     para["backup"] = False
     cat("testfile0.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", para)
-    para["tutorial"] = True
+    cat("testfile1.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    cat("testfile1.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", para)
+    para["backup"] = True
     cat("testfile1.tmp", "fooo\n###barrrr\n####CCCC\nbazzzzz", para)
