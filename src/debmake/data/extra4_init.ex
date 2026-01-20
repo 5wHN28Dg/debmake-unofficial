@@ -45,8 +45,8 @@
 #
 # Function that starts the daemon/service
 #
-do_start()
-{
+#do_start()
+#{
 #	# Return
 #	#   0 if daemon has been started
 #	#   1 if daemon was already running
@@ -157,5 +157,4 @@ do_start()
 #	exit 3
 #	;;
 #esac
-#
 

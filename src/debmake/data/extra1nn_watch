@@ -1,8 +1,6 @@
 # You must remove unused comment lines for the released package.
 #
-# watch control file for uscan
-#
-# This file is not required for Debian native package
+# watch control file for uscan used by Debian non-native package
 #
 # See uscan(1) for how to set this file properly
 #  * uupdate(1) for upgrade a source code package

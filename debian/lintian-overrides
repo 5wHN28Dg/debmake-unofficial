@@ -1,0 +1,1 @@
+debmake: script-not-executable [usr/lib/python3/dist-packages/debmake/data/extra0_rules]
