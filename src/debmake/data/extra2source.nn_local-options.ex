@@ -1,5 +1,7 @@
 # Uncomment to active options. See dpkg-source(1)
 #
+# Never add debian/local-options to dgit maintained source.
+#
 # This file contains a list of long options that should be automatically
 # prepended to the set of command line options of a dpkg-source --build call.
 

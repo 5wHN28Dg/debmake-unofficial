@@ -13,6 +13,6 @@
 %:
 	dh $@@DHWITH@@DHBUILDSYSTEM@
 
-### debmake generated override targets
+# debmake generated override targets
 @OVERRIDE@
 

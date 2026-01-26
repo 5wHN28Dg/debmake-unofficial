@@ -4,17 +4,17 @@
 #
 # If this exists, it is installed as sysv-init script of @PACKAGE@
 #
-### BEGIN INIT INFO
-# Provides:          @PACKAGE@
-# Required-Start:    $network $local_fs
-# Required-Stop:
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: <Enter a short description of the software>
-# Description:       <Enter a long description of the software>
-#                    <...>
-#                    <...>
-### END INIT INFO
+# === BEGIN INIT INFO ===
+#Provides:          @PACKAGE@
+#Required-Start:    $network $local_fs
+#Required-Stop:
+#Default-Start:     2 3 4 5
+#Default-Stop:      0 1 6
+#Short-Description: <Enter a short description of the software>
+#Description:       <Enter a long description of the software>
+#                   <...>
+#                   <...>
+# === END INIT INFO ===
 # See https://wiki.debian.org/LSBInitScripts
 #     /usr/share/doc/insserv/README.Debian
 #
