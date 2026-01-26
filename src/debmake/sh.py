@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # vim:se tw=0 sts=4 ts=4 et ai:
 """
-Copyright © 2014 Osamu Aoki
+Copyright © 2026 Osamu Aoki
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the
@@ -22,42 +22,23 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
+import os
+import os.path
+import subprocess
 import sys
 
-import debmake.sh
-
 
 ###########################################################################
-# yn: ask mes and execute command
-###########################################################################
-def yn(mes, command, yes, exit_no=True):
-    if yes == 1:
-        yn = "y"
-    elif yes == 2:
-        yn = "n"
-    else:
-        yn = input("?: {} [Y/n]: ".format(mes))
-        if yn == "":
-            yn = "y"
-        else:
-            yn = yn[0].lower()
-    if yn == "y":
-        if command:
-            debmake.sh.sh(command)
-    elif exit_no:
-        print(
-            'E: terminating as ERROR since "n" chosen at Y/n question.', file=sys.stderr
-        )
+def sh(command):
+    """
+    execute shell command as if on the shell prompt
+    """
+    print("I: [{}] $ {}".format(os.path.basename(os.getcwd()), command))
+    if subprocess.call(command, shell=True) != 0:
+        print("E: command failed", file=sys.stderr)
         exit(1)
-    else:
-        pass
     return
 
 
 if __name__ == "__main__":
-    print("I: ask")
-    yn("list current directory (ask)", "ls -la", 0)
-    print("I: always yes")
-    yn("list current directory (always yes)", "ls -la", 1)
-    print("I: never yes")
-    yn("list current directory (never yes)", "ls -la", 2, exit_no=False)
+    sh('echo "' + sys.argv[1] + '"')

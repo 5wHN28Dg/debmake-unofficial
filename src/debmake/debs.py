@@ -35,15 +35,12 @@ def match_suffix(name, suffix):
 
 
 ###########################################################################
-# sanity: called from debmake.main()
-###########################################################################
 def debs(para):
     #######################################################################
     # parse binary package names and their specification: binaryspec -> debs
     #######################################################################
     print(
-        'I: parse option -b "{}"'.format(para["binaryspec"]),
-        file=sys.stderr,
+        'I: parsing option -b "{}"'.format(para["binaryspec"]),
     )
     pset = set()
     tset = set()
@@ -267,7 +264,6 @@ def debs(para):
         ###################################################################
         print(
             "I: binary package={} Type={} / Arch={} M-A={}".format(p, t, a, m),
-            file=sys.stderr,
         )
         if p in pset:
             print(
@@ -279,13 +275,11 @@ def debs(para):
         if t in tset:
             print(
                 'W: duplicate definition of package type "{}"'.format(t),
-                file=sys.stderr,
             )
             print(
                 "W: *** manual modification of debian/{}.install required ***".format(
                     p
                 ),
-                file=sys.stderr,
             )
         tset.update({t})
         ###################################################################

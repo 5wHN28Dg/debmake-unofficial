@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # vim:se tw=0 sts=4 ts=4 et ai:
 """
-Copyright © 2014 Osamu Aoki
+Copyright © 2014-2026 Osamu Aoki
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the
@@ -26,7 +26,6 @@ import collections
 import itertools
 import os
 import re
-import sys
 
 ###################################################################
 # Define constants
@@ -150,7 +149,6 @@ def scanext():
             "I: ext_type = {0:<16} {1:>8} files".format(
                 ext_type, ext_type_counter[ext_type]
             ),
-            file=sys.stderr,
         )
     return ext_type_counter
 
@@ -160,6 +158,6 @@ def scanext():
 #######################################################################
 if __name__ == "__main__":
     ext_type_counter = scanext()
-    print("I: ext_type ====================== file count", file=sys.stderr)
+    print("I: ext_type ====================== file count")
     for ext_type, count in ext_type_counter.items():
         print("   ext_type = {0:<16} {1:>8} files".format(ext_type, count))

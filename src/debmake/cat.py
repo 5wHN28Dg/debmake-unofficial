@@ -23,33 +23,26 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import os
-import sys
-
-import debmake.debug
 
 
 #######################################################################
 # cat >file
 def cat(file, text, para):
-    file_write = file
-    file_noex = file
-    if file[-3:] == ".ex":
+    if file[-3:] != ".ex":
+        file_noex = file
+    else:
         file_noex = file[:-3]
+    file_ex = file_noex + ".ex"
     if os.path.exists(file_noex) and os.stat(file_noex).st_size != 0:
         if para["backup"]:
-            if file_noex == file:
-                # not *.ex -> write *.ex as backup
-                file_write = file + ".ex"
-            else:
-                file_write = file
+            file_write = file_ex
         else:
             file_write = ""
+    else:
+        file_write = file
     if file_write == "":
         # skip if a file exists and non-zero content
-        print(
-            "I: skipping: {} (use --backup option to avoid skipping)".format(file),
-            file=sys.stderr,
-        )
+        print("I: skip writing: {})".format(file))
     else:
         newtext = ""
         for line in text.split("\n"):
@@ -60,11 +53,6 @@ def cat(file, text, para):
             os.makedirs(file_dirpath, exist_ok=True)
         with open(file_write, mode="w", encoding="utf-8") as f:
             print(newtext, file=f, end="")
-            debmake.debug.debug(
-                "s",
-                para,
-                'D: output to "{}"'.format(file_write),
-            )
     return
 
 

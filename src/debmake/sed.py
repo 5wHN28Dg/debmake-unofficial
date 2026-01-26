@@ -24,7 +24,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import glob
-import sys
 
 import debmake.cat
 
@@ -44,7 +43,6 @@ def sed(confmask, destdir, substlist, binpackagedot, para):
         newfile = destdir + binpackagedot + destname
         print(
             "I: creating {} from {}".format(newfile, file[len_data_path:]),
-            file=sys.stderr,
         )
         with open(file, mode="r", encoding="utf-8") as f:
             text = f.read()

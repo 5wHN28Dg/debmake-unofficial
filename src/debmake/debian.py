@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # vim:se tw=0 sts=4 ts=4 et ai:
 """
-Copyright © 2014 Osamu Aoki
+Copyright © 2014-2026 Osamu Aoki
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the
@@ -24,18 +24,19 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import os
-import subprocess
-import sys
+import os.path
+import shutil
 
 import debmake.cat
 import debmake.control
 import debmake.read
 import debmake.sed
-import debmake.yn
+import debmake.sh
 
 
 #######################################################################
 def debian(para):
+    ###################################################################
     ###################################################################
     # bin_type="bin" list for executable deb["type"]
     ###################################################################
@@ -43,32 +44,20 @@ def debian(para):
     ###################################################################
     # set output detail level: para["extra"]
     ###################################################################
+    conf_required = ["changelog", "control", "copyright", "rules", "source/format"]
     if para["extra"] == "":  # -x, --extra default
-        if os.path.isfile("debian/changelog"):
-            print('I: found "debian/changelog"', file=sys.stderr)
-            para["extra"] = "0"
-        elif os.path.isfile("debian/control"):
-            print('I: found "debian/control"', file=sys.stderr)
-            para["extra"] = "0"
-        elif os.path.isfile("debian/copyright"):
-            print('I: found "debian/copyright"', file=sys.stderr)
-            para["extra"] = "0"
-        elif os.path.isfile("debian/rules"):
-            print('I: found "debian/rules"', file=sys.stderr)
-            para["extra"] = "0"
-        else:
-            print(
-                "I: new debianization",
-                file=sys.stderr,
-            )
-            para["extra"] = "2"
+        para["extra"] = "2"
+        for conf in conf_required:
+            if os.path.isfile("debian/" + conf):
+                print('I: found "debian/' + conf + '"')
+                para["extra"] = "0"
     try:
         extra = int(para["extra"])
     except ValueError:
         extra = 2  # set to normal one
-    # extra = 0 default: when any of minimum configuration files already exist
-    # extra = 2 default: when none of minimum configuration files already exist
-    print('I: $ debmake ... -x "{}" ...'.format(extra), file=sys.stderr)
+    # extra = 0 default: minimum configuration files already exist
+    # extra = 2 default: none of minimum configuration files already exist
+    print('I: creating debian/* files with "-x {}" option'.format(extra))
     ###################################################################
     # common variables
     ###################################################################
@@ -82,7 +71,6 @@ def debian(para):
         "@DATE@": para["date"],
         "@DEBMAKEVER@": para["program_version"],
         "@BINPACKAGE@": para["debs"][0]["binpackage"],
-        "@BINPACKAGEDOT@": "",
         "@COMPAT@": para["compat"],
     }
     if para["native"]:
@@ -173,29 +161,28 @@ def debian(para):
     # debian/copyright (generate or verify)
     if not os.path.exists("debian/copyright"):
         # generate debian/copyright
-        command = (
-            "licensecheck --recursive --copyright --deb-machine . > debian/copyright"
-        )
-        print("I: $ {}".format(command), file=sys.stderr)
-        if subprocess.call(command, shell=True) != 0:
-            print("E: failed to run this command", file=sys.stderr)
-            exit(1)
-        print(
-            "I: debian/copyright generated.",
-            file=sys.stderr,
-        )
-    else:
+        command = "licensecheck --recursive --copyright --deb-machine "
+        if para["verbose"]:
+            command = "--verbose "
+        command += " . > " + "debian/copyright"
+        debmake.sh.sh(command)
+        print("I: creating debian/copyright by licensecheck.")
+    elif shutil.which("lrc"):
         # verify existing debian/copyright
         command = "lrc"
-        print("I: $ {}".format(command), file=sys.stderr)
-        if subprocess.call(command, shell=True) != 0:
-            print("E: failed to run lrc command", file=sys.stderr)
-            debmake.yn.yn("Continue", "", para["yes"])
-        print(
-            "I: debian/copyright verified.",
-            file=sys.stderr,
-        )
+        debmake.sh.sh(command)
+        print("I: verifying debian/copyright by lrc (licenserecon package).")
+    else:
+        command = "licensecheck --recursive --copyright --deb-machine "
+        if para["verbose"]:
+            command = "--verbose "
+        command += " . > " + "debian/copyright.ex"
+        debmake.sh.sh(command)
+        print("I: creating debian/copyright.ex by licensecheck.")
     # debian/control
+    print(
+        "I: creating {} from control.py".format("debian/control"),
+    )
     debmake.cat.cat("debian/control", debmake.control.control(para), para)
     # debian/changelog, debian/rules
     debmake.sed.sed("extra0_*", "debian/", substlist, "", para)
@@ -327,7 +314,6 @@ def debian(para):
                 binpackagedot = ""
             else:
                 binpackagedot = substlist["@BINPACKAGE@"] + "."
-            substlist["@BINPACKAGEDOT@"] = binpackagedot
             deb_type = deb["type"]
             if deb_type in exec_deb_type_list:
                 deb_type = "bin"
@@ -344,15 +330,12 @@ def debian(para):
     # wrap-and-sort -vast
     # comments may be reordered to be placed after an empty line
     ###################################################################
-    command = "wrap-and-sort -vast"
-    print("I: $ {}".format(command), file=sys.stderr)
-    if subprocess.call(command, shell=True) != 0:
-        print('E: failed to run "wrap-and-sort -vast".', file=sys.stderr)
-        exit(1)
-    print(
-        "I: debian/* may have a blank line at the top.",
-        file=sys.stderr,
-    )
+    if para["verbose"]:
+        command = "wrap-and-sort -vast"
+    else:
+        command = "wrap-and-sort -ast"
+    debmake.sh.sh(command)
+    print("I: debian/* may have a blank line at the top.")
     return
 
 

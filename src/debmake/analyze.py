@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # vim:se tw=0 sts=4 ts=4 et ai:
 """
-Copyright © 2014 Osamu Aoki
+Copyright © 2014-2026 Osamu Aoki
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the
@@ -25,39 +25,19 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import glob
 import itertools
-import os
-import re
-import subprocess
+import os.path
 import sys
 
 import debmake.grep
 import debmake.scanext
 import debmake.yn
 
-###########################################################################
-# get master name (remove -dev)
-###########################################################################
-# re.sub: drop "-dev"
-re_dev = re.compile(r"""(-dev$)""")
-
-
-def masterdev(name):
-    if re_dev.search(name):
-        name = re_dev.sub("", name)
-    else:
-        print(
-            'E: development package "{}" does not end with "-dev"'.format(name),
-            file=sys.stderr,
-        )
-        exit(1)
-    return name
-
 
 ###########################################################################
 # check_popular_ext_type: warn binary dependency (popular extension match)
 ###########################################################################
 def check_popular_ext_type(ext_type, msg, para):
-    n_max_files = 3  # check files with the top 3 popular extension types
+    n_max_files = 3
     if ext_type in itertools.islice(para["ext_type_counter"].keys(), 0, n_max_files):
         ext_type_found = False
         for deb in para["debs"]:
@@ -76,52 +56,9 @@ def check_popular_ext_type(ext_type, msg, para):
                 'W: many ext = "{}" type extension programs without matching -b set.'.format(
                     ext_type
                 ),
-                file=sys.stderr,
             )
             debmake.yn.yn(msg, "", para["yes"])
     return
-
-
-###########################################################################
-# description: read from the upstream packaging system
-###########################################################################
-def description(type, para):
-    text = ""
-    command = para["data_path"] + type + ".short.sh"
-    p = subprocess.Popen(
-        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-    )
-    if p.stdout is not None:
-        for line in p.stdout.readlines():
-            text += line.decode("utf-8").strip() + " "
-    if p.wait() != 0:
-        print('E: "{}" returns "{}"'.format(command, p.returncode), file=sys.stderr)
-        exit(1)
-    return text.strip()
-
-
-###########################################################################
-# description_long: read from the upstream packaging system
-###########################################################################
-def description_long(type, para):
-    text = ""
-    command = para["data_path"] + type + ".long.sh"
-    p = subprocess.Popen(
-        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-    )
-    if p.stdout is not None:
-        for line in p.stdout.readlines():
-            l_chomp = line.decode("utf-8").rstrip()
-            if l_chomp:
-                text += " " + l_chomp + "\n"
-            else:
-                text += " .\n"
-    if p.wait() != 0:
-        print('E: "{}" returns "{}"'.format(command, p.returncode), file=sys.stderr)
-        exit(1)
-    if text == " .\n":
-        text = ""
-    return text
 
 
 ###########################################################################
@@ -177,7 +114,16 @@ def analyze(para):
         elif deb["type"] == "lib":
             para["export"].update({"compiler"})
         elif deb["type"] == "dev":
-            pkg = masterdev(deb["binpackage"])
+            if deb["binpackage"][-4:] == "-dev":
+                pkg = deb["binpackage"][:-4]
+            else:
+                print(
+                    'E: Type=dev package "{}" should end with "-dev"'.format(
+                        deb["binpackage"]
+                    ),
+                    file=sys.stderr,
+                )
+                exit(1)
             match = False
             for libpkg in para["lib"]:
                 if libpkg[: len(pkg)] == pkg:
@@ -269,11 +215,6 @@ def analyze(para):
     else:
         pro = ""
     # check if '*.spec.in' for RPM
-    specs = glob.glob("*.spec.in")
-    if specs:
-        spec = specs[0]
-    else:
-        spec = ""
     # GNU coding standard with autotools = autoconf+automake
     if (
         os.path.isfile("configure.ac")
@@ -301,7 +242,7 @@ def analyze(para):
             para["override"].update({"autogen"})
         else:
             para["override"].update({"autoreconf"})
-        print("W: Use of configure.in has been deprecated since 2001.", file=sys.stderr)
+        print("W: Use of configure.in has been deprecated since 2001.")
     elif (
         os.path.isfile("configure.ac")
         and os.path.isfile("Makefile.am")
@@ -320,7 +261,7 @@ def analyze(para):
         para["build_type"] = "Autotools (old)"
         para["build_depends"].update({"autotools-dev"})
         para["export"].update({"autotools"})
-        print("W: Use of configure.in has been deprecated since 2001.", file=sys.stderr)
+        print("W: Use of configure.in has been deprecated since 2001.")
     elif "autoreconf" in para["dh_with"]:
         print(
             'E: missing configure.ac or Makefile.am required for "dh $@ --with autoreconf".',
@@ -358,11 +299,6 @@ def analyze(para):
         para["dh_buildsystem"] = "pybuild"
         # dh-python and python3-build are pulled in by pybuild-plugin-pyproject"
         para["build_depends"].update({"python3-all", "pybuild-plugin-pyproject"})
-        if para["spec"]:
-            if para["desc"] == "":
-                para["desc"] = description("python3", para)
-            if para["desc_long"] == "":
-                para["desc_long"] = description_long("python3", para)
         if debmake.grep.grep("setup.py", "python3", 0, 1) or debmake.grep.grep(
             "setup.py", "python", 0, 1
         ):
@@ -376,10 +312,9 @@ def analyze(para):
                 # non-setuptools (pure distutil?) may not be supported
                 print(
                     "W: no setuptools. (distutils?)  check setup.py.",
-                    file=sys.stderr,
                 )
         else:
-            print("W: unknown python system.  check setup.py.", file=sys.stderr)
+            print("W: unknown python system.  check setup.py.")
     elif os.path.isfile("setup.cnf"):
         para["dh_with"].update({"python3"})
         para["build_type"] = "Python setuptools (setup.cnf)"
@@ -398,23 +333,23 @@ def analyze(para):
             # TODO: check if this is good idea
             para["build_depends"].update({"python3-setuptools"})
             # para["build_depends"].update({"python3-setuptools-whl"})
-            print("W: setuptools build system.", file=sys.stderr)
+            print("W: setuptools build system.")
         elif debmake.grep.grep("pyproject.toml", r"hatchling", 0, -1):
             # TODO: check if this is good idea
             para["build_depends"].update({"python3-hatchling"})
-            print("W: Hatchling build system.", file=sys.stderr)
+            print("W: Hatchling build system.")
         elif debmake.grep.grep("pyproject.toml", r"flit_core", 0, -1):
             # TODO: check if this is good idea
             para["build_depends"].update({"flit"})
-            print("W: Flit build system.", file=sys.stderr)
+            print("W: Flit build system.")
         elif debmake.grep.grep("pyproject.toml", r"pdm-backend", 0, -1):
             # TODO: check if this is good idea
             para["build_depends"].update({"python3-pdm"})
             # para["build_depends"].update({"python3-pdm-pep517"})
-            print("W: PDM build system.", file=sys.stderr)
+            print("W: PDM build system.")
         else:
             # TODO: check if this is good idea
-            print("W: unknown python build system.", file=sys.stderr)
+            print("W: unknown python build system.")
     # Perl
     elif os.path.isfile("Build.PL"):
         # Preferred over Makefile.PL after debhelper v8
@@ -427,7 +362,6 @@ def analyze(para):
     elif os.path.isfile("setup.rb"):
         print(
             "W: dh-make-ruby(1) (gem2deb package) may provide better packaging results.",
-            file=sys.stderr,
         )
         para["build_type"] = "Ruby setup.rb"
         para["build_depends"].update({"ruby", "gem2deb"})
@@ -457,18 +391,7 @@ def analyze(para):
         para["build_type"] = "Unknown"
         if setmultiarch:
             para["override"].update({"multiarch"})
-    print("I: build_type = {}".format(para["build_type"]), file=sys.stderr)
-    #######################################################################
-    # high priority spec source, first
-    if para["spec"]:
-        if para["desc"] == "" and os.path.isfile("META.yml"):
-            para["desc"] = description("META.yml", para)
-        if para["desc"] == "" and os.path.isfile("Rakefile"):
-            para["desc"] = description("Rakefile", para)
-        if para["desc"] == "" and spec:
-            para["desc"] = description("spec", para)
-        if para["desc_long"] == "" and spec:
-            para["desc_long"] = description_long("spec", para)
+    print("I: build_type = {}".format(para["build_type"]))
     #######################################################################
     # analyze file extensions
     #######################################################################
@@ -495,7 +418,6 @@ def analyze(para):
     if para["build_type"][0:4] == "Java":
         print(
             "W: Java support is not perfect. (/usr/share/doc/javahelper/tutorials.html)",
-            file=sys.stderr,
         )
     if "vala" in para["ext_type_counter"].keys():
         para["build_type"] = "Vala"

@@ -23,54 +23,83 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import os
+import os.path
 import sys
 
 #######################################################################
 # Debug output
 #######################################################################
 key_parameters = [
+    "url",
     "package",
     "version",
     "revision",
-    "tarxz",
+    "tarz",
+    "pre",
+    "pkg",
+    "ver",
+    "ext",
     "tarball",
-    "native",
-    "tar",
-    "archive",
+    "source_dir",
+    "debmake_dir",
+    "option_z",
     "export",
     "override",
+    "native",
 ]
 
 
 #######################################################################
-def debug(type, para, msg):
+# All Debug outputs to STDERR
+#######################################################################
+def debug(msg, type="s", para=dict()):
     env = os.environ.get("DEBUG", "")
     if type == "s" and "s" in env:
         # simple debug progress report
-        print(msg, file=sys.stderr)
-    elif type == "p" and "p" in env:
-        print(msg, file=sys.stderr)
+        print(
+            "D: ======== "
+            + msg
+            + " @ {} ========".format(os.path.basename(os.getcwd())),
+            file=sys.stderr,
+        )
+    if type == "p" and "p" in env:
+        print(
+            "D: ======== "
+            + msg
+            + " @ {} ========".format(os.path.basename(os.getcwd())),
+            file=sys.stderr,
+        )
         for k in key_parameters:
-            print('  para[{}] = "{}"'.format(k, para.get(k, "")), file=sys.stderr)
-    elif type == "p" and "P" in env:
-        print(msg, file=sys.stderr)
+            print('D:   para[{}] = "{}"'.format(k, para.get(k, "")), file=sys.stderr)
+    if type == "p" and "P" in env:
+        print(
+            "D: ======== "
+            + msg
+            + " @ {} ========".format(os.path.basename(os.getcwd())),
+            file=sys.stderr,
+        )
         for k, v in para.items():
-            print('  para[{}] = "{}"'.format(k, v), file=sys.stderr)
-    elif type == "d" and "d" in env:
-        print(msg, file=sys.stderr)
+            print('D:   para[{}] = "{}"'.format(k, v), file=sys.stderr)
+    if type == "d" and "d" in env:
+        print(
+            "D: ======== "
+            + msg
+            + " @ {} ========".format(os.path.basename(os.getcwd())),
+            file=sys.stderr,
+        )
         for deb in para["debs"]:
-            print("  Binary Package: {}".format(deb["binpackage"]), file=sys.stderr)
-            print("    Architecture: {}".format(deb["arch"]), file=sys.stderr)
-            print("    Multi-Arch:   {}".format(deb["multiarch"]), file=sys.stderr)
+            print("D:   Binary Package: {}".format(deb["binpackage"]), file=sys.stderr)
+            print("D:   Architecture:   {}".format(deb["arch"]), file=sys.stderr)
+            print("D:   Multi-Arch:     {}".format(deb["multiarch"]), file=sys.stderr)
             print(
-                "    Depends:      {}".format(", ".join(deb["depends"])),
+                "D:   Depends:        {}".format(", ".join(deb["depends"])),
                 file=sys.stderr,
             )
             print(
-                "    Pre-Depends:  {}".format(", ".join(deb["pre-depends"])),
+                "D:   Pre-Depends:    {}".format(", ".join(deb["pre-depends"])),
                 file=sys.stderr,
             )
-            print("    Type:         {}".format(deb["type"]), file=sys.stderr)
+            print("D:   Type:           {}".format(deb["type"]), file=sys.stderr)
     else:
         pass
     return
@@ -81,11 +110,11 @@ def debug(type, para, msg):
 #######################################################################
 if __name__ == "__main__":
     para = {}
-    debug("d", para, "**** DEBUG ON! ****")
+    debug("**** DEBUG ON! ****", type="d", para=para)
     para["package"] = "package"
     para["version"] = "1.0"
-    para["tarxz"] = "tar.xz"
+    para["tarz"] = "tar.xz"
     para["tarball"] = "package-ver.tar.xz"
     para["foo"] = "bar"
-    debug("p", para, "=== debug select para ===")
-    debug("P", para, "=== debug all para ===")
+    debug("=== debug select para ===", type="p", para=para)
+    debug("=== debug all para ===", type="P", para=para)

@@ -22,15 +22,16 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
-import os
-import subprocess
+import os.path
 import sys
+
+import debmake.sh
 
 
 ###########################################################################
 # origtar: called from debmake.main()
 ###########################################################################
-def origtar(para):
+def tar_orig(para):
     #######################################################################
     # make package_version.orig.tar.xz (as symlink)
     #######################################################################
@@ -40,22 +41,23 @@ def origtar(para):
             file=sys.stderr,
         )
         exit(1)
-    origtargz = para["package"] + "_" + para["version"] + ".orig." + para["tarxz"]
+    origtargz = para["package"] + "_" + para["version"] + ".orig." + para["tarz"]
     if para["tarball"] == origtargz:
         print(
             'I: use the existing "{}" as the upstream orig.tar.?z'.format(
                 para["tarball"]
             ),
-            file=sys.stderr,
         )
     else:
         command = "ln -sf " + para["tarball"] + " " + origtargz
-        print("I: $ {}".format(command), file=sys.stderr)
-        if subprocess.call(command, shell=True) != 0:
-            print("E: failed to create symlink.", file=sys.stderr)
-            exit(1)
+        debmake.sh.sh(command)
     return
 
 
 if __name__ == "__main__":
-    print("no test")
+    para = dict()
+    para["tarball"] = sys.argv[1]
+    para["package"] = os.path.splitext(os.path.basename(para["tarball"]))[0].lower()
+    para["version"] = "1.0"
+    para["tarz"] = "tar.xz"
+    tar_orig(para)

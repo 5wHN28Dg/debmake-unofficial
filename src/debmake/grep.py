@@ -24,7 +24,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import os
 import re
-import sys
 
 
 #######################################################################
@@ -35,7 +34,7 @@ def grep(file, rtext, *range):
     # range 5,-1: grep on the 6-th line to the last line
     lines = ""
     if not os.path.isfile(file):
-        print("I: skipping :: {} (missing file)".format(file), file=sys.stderr)
+        print("I: skipping :: {} (missing file)".format(file))
     else:
         reg = re.compile(rtext)
         if len(range) == 0:

@@ -23,14 +23,13 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import re
-import sys
 
 import debmake.read
 
 
 #######################################################################
 def control(para):
-    print("I: creating debian/control by control.py", file=sys.stderr)
+    print("I: creating debian/control by control.py")
     # number of binary Debian packages
     ndebs = len(para["debs"])
     # set of binary Debian package types
@@ -185,7 +184,7 @@ Description: {6}
 # Test script
 #######################################################################
 if __name__ == "__main__":
-    import debs
+    import debmake.debs
 
     para = {}
     para["package"] = "package"
@@ -208,5 +207,5 @@ if __name__ == "__main__":
     para["dh_with"] = set({"python3"})
     para["binaryspec"] = "-:python3,-doc:doc,-html:doc,lib"
     para["monoarch"] = False
-    debs.debs(para)
+    debmake.debs.debs(para)
     print(control(para))

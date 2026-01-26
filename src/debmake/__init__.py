@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # vim:se tw=0 sts=4 ts=4 et ai:
 """
-Copyright © 2014-2024 Osamu Aoki
+Copyright © 2014-2026 Osamu Aoki
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the
@@ -29,7 +29,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 __debian_policy__ = "4.7.3"  # debian policy version
 __debian_compat__ = "13"  # debian/control Build-Depends: debhelper-compat (= 13)
 __programname__ = "debmake"
-__version__ = "5.0.0"
+__version__ = "5.1.0"
 __copyright__ = "Copyright © 2014-2026 Osamu Aoki <osamu@debian.org>"
 __license__ = """\
 Permission is hereby granted, free of charge, to any person obtaining a
