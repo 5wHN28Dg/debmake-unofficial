@@ -1,6 +1,6 @@
 #!/bin/sh -e
-# check if debmake works as expected
-LC_ALL=en_US.UTF-8
+# tar.xz w/o project-ver/
+LC_ALL=C.UTF-8
 export LC_ALL
 
 # non-native from archive.xz using -a
@@ -11,7 +11,7 @@ mkdir ${PROJECT}
 echo "DUMMY ${PROJECT}" > ${PROJECT}/dummy-${PROJECT}
 tar --xz -cvf ${PROJECT}.tar.xz ${PROJECT}
 rm -rf ${PROJECT}
-debmake -a ${PROJECT}.tar.xz 2>&1
+debmake -x0 ${PROJECT}.tar.xz
 cd ${PROJECT} || exit 1
 test -x debian/rules
 cd .. || exit 1

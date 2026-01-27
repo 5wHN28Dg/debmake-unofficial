@@ -1,6 +1,6 @@
 #!/bin/sh -e
-# check if debmake works as expected
-LC_ALL=en_US.UTF-8
+# project-ver/ in tree debmake
+LC_ALL=C.UTF-8
 export LC_ALL
 
 # non-native without any origtar..\\ (auto -t option)
@@ -10,7 +10,7 @@ rm -rf ${PROJECT}
 mkdir ${PROJECT}
 echo "DUMMY ${PROJECT}" > ${PROJECT}/dummy-${PROJECT}
 cd ${PROJECT} || exit 1
-debmake -y 2>&1
+debmake
 test -x debian/rules
 cd .. || exit 1
 

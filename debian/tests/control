@@ -1,6 +1,9 @@
 Tests:
  testcode1.sh,
  testcode2.sh,
+ testcode21.sh,
+ testcode22.sh,
+ testcode23.sh,
  testcode3.sh,
  testcode31.sh,
  testcode32.sh,

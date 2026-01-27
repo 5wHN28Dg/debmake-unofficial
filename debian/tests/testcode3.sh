@@ -1,6 +1,6 @@
 #!/bin/sh -e
-# check if debmake works as expected
-LC_ALL=en_US.UTF-8
+# tar.gz with project-ver/ in tree debmake -x0
+LC_ALL=C.UTF-8
 export LC_ALL
 
 # non-native source tree with tar.gz on side
@@ -11,7 +11,7 @@ mkdir ${PROJECT}
 echo "DUMMY ${PROJECT}" > ${PROJECT}/dummy-${PROJECT}
 tar -cvzf ${PROJECT}.tar.gz ${PROJECT}
 cd ${PROJECT} || exit 1
-debmake 2>&1
+debmake -x0
 test -x debian/rules
 cd .. || exit 1
 
