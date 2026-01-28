@@ -7,6 +7,12 @@ This is available as the "debmake" package on Debian.
 
 * Homepage: https://salsa.debian.org/debian/debmake
 * Default branch: main
+* Major refactor happened 5.0.0-5.1.0 (No mote -a -t -T -l -c ....)
+* Now optional positional argument can specify:
+  * tarball URL
+  * git repository URL
+  * PATH to source tree
+  * PATH to tarball
 
 See the HTML files in the "debmake-doc" package for the introductory guide.
 
@@ -16,14 +22,10 @@ The `src/debmake/__main__.py` is provides the entry point and backbone of the
 `debmake` command.  Its code flows as follows:
 
 * `debmake.para.para` -- this is the command line parser
-* `debmake.sanity.sanity` -- do some sanity checks for version etc.
-* `debmake.dist.dist` -- run `make dist` or similar to get `tar.xz etc`.
-* `debmake.tar.tar` -- if required, create `tar.xz` etc. excluding `debian/*`
-* `debmake.untar.untar` -- untar `tar.xz`
-* `debmake.origtar.origtar` -- create a link from `tar.xz` to `orig.tar.xz`
 * `debmake.debs.debs` -- parse `-b` spec and return `para["debs"]`
 * `debmake.analyze.analyze` -- analyze source tree to identify its build system
-* `debmake.debian.debian` -- write out `debian/*` configuration files
+* `debmake.control.control` -- write out `debian/control` configuration file
+* `debmake.debian.debian` -- write out other `debian/*` configuration files
 
 
 ## License for the entire source
@@ -158,7 +160,7 @@ Now `debmake` script providing `debmake` equivalent command
 can be executed from the command line for debugging.
 
 ```
-$ debmake [-h] [-n | -a package-version.tar.gz | -d | -t]
+$ debmake [-h] [-n] [URL]
 ```
 
 There are other ways to test code in place without installing them.  One way is
