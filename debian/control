@@ -20,13 +20,13 @@ Depends:
  dpkg-dev,
  devscripts,
  licensecheck,
- licenserecon,
  python3-debian,
  rsync,
  ${misc:Depends},
  ${python3:Depends},
 Recommends:
  build-essential,
+ licenserecon,
  strace,
  wget | curl,
 Suggests:
