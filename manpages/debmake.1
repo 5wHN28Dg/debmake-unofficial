@@ -2,12 +2,12 @@
 .\"     Title: debmake
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.23
-.\"      Date: 2026-01-18
+.\"      Date: 2026-01-29
 .\"    Manual: Debmake Manual
 .\"    Source: DEBMAKE
 .\"  Language: English
 .\"
-.TH "DEBMAKE" "1" "2026-01-18" "DEBMAKE" "Debmake Manual"
+.TH "DEBMAKE" "1" "2026-01-29" "DEBMAKE" "Debmake Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -31,10 +31,17 @@
 debmake \- program to make a Debian source package
 .SH "SYNOPSIS"
 .sp
-\fBdebmake\fP  [\fB\-h\fP]  [\fB\-n\fP | \fB\-a\fP \fIpackage\-version\fP\fB.orig.tar.gz\fP | \fB\-d\fP | \fB\-t\fP ] [\fB\-p\fP \fIpackage\fP] [\fB\-u\fP \fIversion\fP] [\fB\-r\fP \fIrevision\fP] [\fB\-z\fP \fIextension\fP] [\fB\-b\fP "\fIbinarypackage\fP\fI[:type], ...\fP]" [\fB\-e\fP \fIfoo@example.org\fP] [\fB\-f\fP "\fIfirstname lastname\fP"] [\fB\-i\fP "\fIbuildtool\fP" | \fB\-j\fP] [\fB\-m\fP] [\fB\-o\fP \fIfile\fP] [\fB\-q\fP] [\fB\-s\fP] [\fB\-v\fP] [\fB\-w\fP "\fIaddon, ...\fP"] [\fB\-x\fP [\fI01234\fP]] [\fB\-y\fP] [\fB\-T\fP] [\fB\-B\fP]
+\fBdebmake\fP [\fB\-h\fP] [\fB\-n\fP] [\fB\-p\fP \fIpackage\fP] [\fB\-u\fP \fIversion\fP] [\fB\-r\fP \fIrevision\fP]
+[\fB\-z\fP \fIextension\fP] [\fB\-b\fP "\fIbinarypackage\fP\fI[:type], ...\fP]" [\fB\-e\fP \fIfoo@example.org\fP]
+[\fB\-f\fP "\fIfirstname lastname\fP"]
+[\fB\-i\fP [\fBdebuild\fP|\fBsbuild\fP|\fBdgit sbuild\fP|\fBgbp buildpackage\fP|\fBdpkg\-buildpackage\fP| ...]]
+[\fB\-m\fP] [\fB\-q\fP] [\fB\-v\fP] [\fB\-V\fP] [\fB\-w\fP \fI"addon, ..."\fP] [\fB\-x\fP [01234]] [\fB\-y\fP] [\fB\-B\fP]
+[\fIURL\fP]
 .SH "DESCRIPTION"
 .sp
-\fBdebmake\fP helps to build a Debian package from the upstream source.  Normally, this is done as follows:
+\fBdebmake\fP helps to build the Debian package from the upstream source.
+.sp
+Normally, this is done as follows:
 .sp
 .RS 4
 .ie n \{\
@@ -44,7 +51,18 @@ debmake \- program to make a Debian source package
 .  sp -1
 .  IP \(bu 2.3
 .\}
-The upstream tarball is downloaded as the \fIpackage\-version\fP\fB.tar.gz\fP file.
+The upstream source is obtained as a tarball from a remote web site
+or a cloned work tree using \(lq\fBgit clone\fP\(rq.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+For a tarball, it is expanded to many files in the source directory.
 .RE
 .sp
 .RS 4
@@ -55,7 +73,8 @@ The upstream tarball is downloaded as the \fIpackage\-version\fP\fB.tar.gz\fP fi
 .  sp -1
 .  IP \(bu 2.3
 .\}
-It is untarred to create many files under the \fIpackage\-version/\fP directory.
+For a cloned work tree, it is used as the source directory.
+.RE
 .RE
 .sp
 .RS 4
@@ -66,7 +85,18 @@ It is untarred to create many files under the \fIpackage\-version/\fP directory.
 .  sp -1
 .  IP \(bu 2.3
 .\}
-debmake is invoked in the \fIpackage\-version/\fP directory, possibly without any arguments.
+debmake is typically invoked in the source directory without any
+argument.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+The source directory is copied to ../\fIpackage\-version\fP/ directory.
 .RE
 .sp
 .RS 4
@@ -77,7 +107,7 @@ debmake is invoked in the \fIpackage\-version/\fP directory, possibly without an
 .  sp -1
 .  IP \(bu 2.3
 .\}
-Files in the \fIpackage\-version\fP\fB/debian/\fP directory are manually adjusted.
+If ../\fIpackage_version\fP\fB.orig.tar.xz\fP is missing, it is generated.
 .RE
 .sp
 .RS 4
@@ -88,23 +118,7 @@ Files in the \fIpackage\-version\fP\fB/debian/\fP directory are manually adjuste
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBdpkg\-buildpackage\fP (usually from its wrapper \fBdebuild\fP or \fBsbuild\fP) is invoked in the \fIpackage\-version/\fP directory to make Debian packages.
-.RE
-.sp
-Make sure to protect the arguments of the \fB\-b\fP, \fB\-f\fP, and \fB\-w\fP options from shell interference by quoting them properly.
-.sp
-Recently, the upstream may release its source code using the Git repository only without the tarball. \fBdebmake\fP can offer a way to
-work with this situation:
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\(lq\fBgit clone https://\fP\fIgit.site.org/project/package\fP\fB.git\fP\(rq downloads upstream source to the \fIpackage/\fP directory.
+The current directory is moved to ../package\-version/.
 .RE
 .sp
 .RS 4
@@ -115,7 +129,9 @@ work with this situation:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\(lq\fBcd\fP \fIproject/\fP ; \fBdebmake \-u\fP \fIversion\fP \fB\-\-tar ; cd \-\fP\(rq generates the \fIpackage\-version\fP\fB.tar.xz\fP file, the \fIpackage_version\fP\fB.orig.tar.xz\fP symlink, and the \fIpackage\-version/\fP directory.
+Template files are generated in the ../\fIpackage\-version\fP\fB/debian/\fP
+directory
+.RE
 .RE
 .sp
 .RS 4
@@ -126,7 +142,8 @@ work with this situation:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-Files in the \fIpackage\-version\fP/\fBdebian/\fP directory shall be manually adjusted.
+Files in the ../\fIpackage\-version\fP\fB/debian/\fP directory should be manually
+adjusted.
 .RE
 .sp
 .RS 4
@@ -137,71 +154,56 @@ Files in the \fIpackage\-version\fP/\fBdebian/\fP directory shall be manually ad
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBdpkg\-buildpackage\fP (usually from its wrapper \fBdebuild\fP or \fBsbuild\fP) is invoked in the \fIpackage\-version/\fP directory to make Debian packages.
+\fBdpkg\-buildpackage\fP (usually from its wrapper \fBdebuild\fP, \fBsbuild\fP, ...) is
+invoked in the ../\fIpackage\-version\fP/ directory to make Debian source
+and binary packages.
 .RE
+.sp
+Also, \fBdebmake\fP can be invoked with an argument.  This argument can be \fIURL\fP
+for a tarball hosted on a remote web site or for a source code accessed
+by \(lq\fBgit clone\fP\(rq; or local \fIPATH\fP to the tarball or the source code.
+.sp
+Arguments to \fB\-b\fP, \fB\-f\fP, and \fB\-w\fP options need to be quoted to protect them from the shell.
 .sp
 Other tools also offer ways to obtain the upstream tarball and creating required symlink to build a Debian package depending on
 your workflow.  For example, \fBorigtargz\fP, \fBmk\-origtargz\fP, \fBgit\-deborig\fP, and \fBpristine\-tar\fP.
-.SS "optional arguments:"
+.SH "POSITIONAL ARGUMENTS"
+.sp
+\fIURL\fP
+.RS 4
+aquire the source tree from the tarball, the git repository or the source tree at this \fIURL\fP (or \fIPATH\fP) (if missing, the source tree uses the current directory)
+.RE
+.SH "OPTIONS"
 .sp
 \fB\-h\fP, \fB\-\-help\fP
 .RS 4
-show this help message and exit.
+show this help message and exit
 .RE
 .sp
 \fB\-n\fP, \fB\-\-native\fP
-.RS 4
-make a native Debian source package without \fB.orig.tar.gz\fP.  This makes a Debian source format \(lq\fB3.0 (native)\fP\(rq package.
+make a native source package without \fB.orig.tar.gz\fP
 .sp
-If you are thinking of packaging a Debian\-specific source tree with \fBdebian/\fP in it into a native Debian package, please think otherwise.  You can use the \(lq\fBdebmake \-d  \-i debuild\fP\(rq or \(lq\fBdebmake \-t \-i debuild\fP\(rq commands to make a Debian non\-native package using the Debian source format \(lq\fB3.0 (quilt)\fP\(rq  The only difference is that the \fBdebian/changelog\fP file must use the non\-native version scheme: \fIversion\-revision\fP.  The non\-native package is more friendly to downstream distributions.
+\fB\-p\fP, \fB\-\-package package\fP
+.RS 4
+set the Debian package name
 .RE
 .sp
-\fB\-a\fP \fIpackage\-version\fP\fB.tar.gz\fP, \fB\-\-archive\fP \fIpackage\-version\fP\fB.tar.gz\fP
+\fB\-u\fP, \fB\-\-upstreamversion\fP \fIversion\fP
 .RS 4
-use the upstream source tarball directly. (\fB\-p\fP, \fB\-u\fP, \fB\-z\fP: overridden)
-.sp
-The upstream tarball may be specified as \fIpackage_version\fP\fB.orig.tar.gz\fP and \fBtar.gz\fP.  For other cases, it may be \fBtar.bz2\fP, or \fBtar.xz\fP.
-.sp
-If the specified upstream tarball name contains uppercase letters, the Debian package name is generated by converting them to lowercase letters.
-.sp
-If the specified argument is the URL (\f(CRhttp://\fP, \f(CRhttps://\fP, or \f(CRftp://\fP) to the upstream tarball, the upstream tarball is downloaded from the URL using \fBwget\fP or \fBcurl\fP.
+set the upstream package version
 .RE
 .sp
-\fB\-d\fP, \fB\-\-dist\fP
+\fB\-r\fP, \fB\-\-revision\fP \fIrevision\fP
 .RS 4
-run the \(lq\fBmake dist\fP\(rq command equivalents first to generate the upstream tarball and use it.
-.sp
-The \(lq\fBdebmake \-d\fP\(rq command is designed to run in the \fIpackage/\fP directory hosting the upstream VCS with the build system supporting the \(lq\fBmake dist\fP\(rq command equivalents.  (\f(CRautomake\fP/\f(CRautoconf\fP, ...)
+set the Debian package revision
 .RE
 .sp
-\fB\-t\fP, \fB\-\-tar\fP
+\fB\-z\fP, \fB\-\-tarz\fP \fIextension\fP
 .RS 4
-run the \(lq\fBtar\fP\(rq command to generate the upstream tarball and use it.
-.sp
-The \(lq\fBdebmake \-t\fP\(rq command is designed to run in the \fIpackage/\fP directory hosting the upstream VCS.  Unless you provide the upstream version with the \fB\-u\fP option or with the \fBdebian/changelog\fP file, a snapshot upstream version is generated in the \fB0\(rs~%y%m%d%H%M\fP format, e.g., \fI0~1403012359\fP, from the UTC date and time.  The generated tarball excludes the \fBdebian/\fP directory found in the upstream VCS. (It also excludes typical VCS directories: \fB.git/\fP, \fB.hg/\fP, \fB.svn/\fP, \fB.CVS/\fP.)
+set the tarball compression type, \fIextension\fP=(\fBtar.xz\fP|\fBtar.gz\fP|\fBtar.bz2\fP) (alias: \fBz\fP, \fBb\fP, \fBx\fP)
 .RE
 .sp
-\fB\-p\fP \fIpackage\fP, \fB\-\-package\fP \fIpackage\fP
-.RS 4
-set the Debian package name.
-.RE
-.sp
-\fB\-u\fP \fIversion\fP, \fB\-\-upstreamversion\fP \fIversion\fP
-.RS 4
-set the upstream package version.
-.RE
-.sp
-\fB\-r\fP \fIrevision\fP, \fB\-\-revision\fP \fIrevision\fP
-.RS 4
-set the Debian package revision.
-.RE
-.sp
-\fB\-z\fP \fIextension\fP, \fB\-\-targz\fP \fIextension\fP
-.RS 4
-set the tarball type, \fIextension\fP=(\fBtar.gz\fP|\fBtar.bz2\fP|\fBtar.xz\fP). (alias: \fBz\fP, \fBb\fP, \fBx\fP)
-.RE
-.sp
-\fB\-b\fP "\fIbinarypackage[:type],...\fP", \fB\-\-binaryspec\fP "\fIbinarypackage[:type],...\fP"
+\fB\-b\fP, \fB\-\-binaryspec\fP \fI"binarypackage[:type], ..."\fP
 .RS 4
 set the binary package specs by a comma separated list of \fIbinarypackage:type\fP pairs.  Here, \fIbinarypackage\fP is the binary package name, and the optional \fItype\fP is chosen from the following \fItype\fP values:
 .sp
@@ -337,7 +339,7 @@ Generating an executable binary package \fBfoo\fP:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\(lq\fB\-b\(cqfoo:bin\*(Aq\fP\(rq, or its short form `\fB\-b\*(Aq\-\*(Aq\fP`", or no \fB\-b\fP option
+\(lq\fB\-b\(cqfoo:bin\*(Aq\fP\(rq, or its short form \(lq\fB\-b\*(Aq\-\*(Aq\fP\(rq, or no \fB\-b\fP option
 .RE
 .RE
 .sp
@@ -432,113 +434,59 @@ Generating a executable binary package \fBfoo\fP, a library package \fBlibfoo1\f
 If the source tree contents do not match settings for \fItype\fP, the \fBdebmake\fP command warns you.
 .RE
 .sp
-\fB\-e\fP \fIfoo@example.org\fP, \fB\-\-email\fP \fIfoo@example.org\fP
+\fB\-e\fP, \fB\-\-email\fP \fIfoo@example.org\fP
 .RS 4
-set e\-mail address.
+set e\-mail address
 .sp
 The default is taken from the value of the environment variable \fB$DEBEMAIL\fP.
 .RE
 .sp
-\fB\-f\fP "\fIfirstname lastname\fP", \fB\-\-fullname\fP "\fIfirstname lastname\fP"
+\fB\-f\fP, \fB\-\-fullname\fP \fI"firstname lastname"\fP
 .RS 4
-set the fullname.
+set the fullname
 .sp
 The default is taken from the value of the environment variable \fB$DEBFULLNAME\fP.
 .RE
 .sp
-\fB\-i\fP "\fIbuildtool\fP", \fB\-\-invoke\fP "\fIbuildtool\fP"
+\fB\-i\fP, \fB\-\-invoke\fP \fI[debuild|sbuild|dgit sbuild|gbp buildpackage|dpkg\-buildpackage| ...]\fP
 .RS 4
-invoke "\fIbuildtool\fP" at the end of execution.  \fIbuildtool\fP may be \(lq\fBdpkg\-buildpackage\fP\(rq, \(lq\fBdebuild\fP\(rq, \(lq\fBsbuild\fP\(rq, etc.
-.sp
-The default is not to execute any program.
-.sp
-Setting this option automatically sets the \fB\-\-local\fP option.
-.RE
-.sp
-\fB\-j\fP, \fB\-\-judge\fP
-.RS 4
-run \fBdpkg\-depcheck\fP to judge build dependencies and identify file paths.  Log files are in the parent directory.
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fIpackage\fP\fB.build\-dep.log\fP: Log file for \fBdpkg\-depcheck\fP.
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\fIpackage\fP\fB.install.log\fP: Log file recording files in the \fBdebian/tmp\fP directory.
-.RE
+invoke package build tool
 .RE
 .sp
 \fB\-m\fP, \fB\-\-monoarch\fP
 .RS 4
-force packages to be non\-multiarch.
-.RE
-.sp
-\fB\-o\fP \fIfile\fP, \fB\-\-option\fP \fIfile\fP
-.RS 4
-read optional parameters from \fIfile\fP. (This is not for everyday use.)
-.sp
-The content of \fIfile\fP is sourced as the Python code at the end of \fBpara.py\fP.  For example, the package description can be specified by the following file.
-.sp
-.if n .RS 4
-.nf
-.fam C
-para[\*(Aqdesc\*(Aq] = \*(Aqprogram short description\*(Aq
-para[\*(Aqdesc_long\*(Aq] = \*(Aq\*(Aq\*(Aq\(rs
- program long description which you wish to include.
- .
- Empty line is space + .
- You keep going on ...
-\*(Aq\*(Aq\*(Aq
-.fam
-.fi
-.if n .RE
+force packages to be non\-multiarch
 .RE
 .sp
 \fB\-q\fP, \fB\-\-quitearly\fP
 .RS 4
-quit early before creating files in the \fBdebian/\fP directory.
-.RE
-.sp
-\fB\-s\fP, \fB\-\-spec\fP
-.RS 4
-use upstream spec (\fBpyproject.py\fP for Python, etc.) for the package description.
+quit early before creating files in the debian directory
 .RE
 .sp
 \fB\-v\fP, \fB\-\-version\fP
 .RS 4
-show version information.
+show version information
 .RE
 .sp
-\fB\-w\fP "\fIaddon,...\fP", \fB\-\-with\fP "\fIaddon,...\fP"
+\fB\-V\fP, \fB\-\-verbose\fP
 .RS 4
-add extra arguments to the \fB\-\-with\fP option of the \fBdh\fP(1) command as \fIaddon\fP in \fBdebian/rules\fP.
+use \-\-verbose for shell commands if available
+.RE
 .sp
-The \fIaddon\fP values are listed all separated by \(lq\fB,\fP\(rq, e.g., \(lq\fB\-w "python3,autoreconf"\fP\(rq.
-.sp
-For  Autotools based packages, \fBautoreconf\fP as \fIaddon\fP to run \(lq\fBautoreconf \-i \-v \-f\fP\(rq for every package building is default behavior of the \fBdh\fP(1) command.
+\fB\-w\fP, \fB\-\-with\fP \fI"addon ..."\fP
+.RS 4
+set additional \(lq\fBdh \-\-with\fP\(rq option arguments in \fBdebian/rules\fP
 .sp
 For Autotools based packages, if they install Python (version 3) programs, setting \fBpython3\fP as \fIaddon\fP to the \fBdebmake\fP command argument is needed since this is non\-obvious.  But for \fBpyproject.toml\fP based Python packages, setting \fBpython3\fP as \fIaddon\fP to the \fBdebmake\fP command argument is not needed since this is obvious and the \fBdebmake\fP command automatically set it to the \fBdh\fP(1) command.
 .RE
 .sp
-\fB\-x\fP \fIn\fP, \fB\-\-extra\fP \fIn\fP
+\fB\-x\fP, \fB\-\-extra\fP \fI[01234]\fP
 .RS 4
-generate configuration files as templates.  (Please note \fBdebian/changelog\fP, \fBdebian/control\fP, \fBdebian/copyright\fP, and \fBdebian/rules\fP are required configuration files to build a Debian binary package.)
+generate extra configuration files as templates (default: 2)
 .sp
-The number \fIn\fP determines which configuration templates are generated.
+Please note \fBdebian/changelog\fP, \fBdebian/control\fP, \fBdebian/copyright\fP, \fBdebian/rules\fP, and \fBdebian/source/format\fP are required configuration files to build a modern Debian binary package.
+.sp
+The number determines which configuration templates are generated.
 .sp
 .RS 4
 .ie n \{\
@@ -548,7 +496,7 @@ The number \fIn\fP determines which configuration templates are generated.
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fB\-x0\fP: all required configuration template files. (selected option if any of these required files already exist)
+\fB\-x0\fP: all 5 required configuration template files. (selected option if any of these required files already exist)
 .RE
 .sp
 .RS 4
@@ -601,16 +549,16 @@ Existing configuration files are never overwritten.  If you wish to update some 
 .sp
 \fB\-y\fP, \fB\-\-yes\fP
 .RS 4
-\(lqforce yes\(rq for all prompts. (without option: \(lqask [Y/n]\(rq; doubled option: \(lqforce no\(rq)
+use once to \(lqforce yes\(rq for all prompts, twice to \(lqforce no\(rq
 .RE
 .sp
 \fB\-B\fP, \fB\-\-backup\fP
 .RS 4
-for existing template files, create new template files with \fB.bkup\fP suffix and keep the existing ones.
+keep the user editted ones without \fB.ex\fP suffix and create template files with \fB.ex\fP suffix
 .RE
 .SH "EXAMPLES"
 .sp
-For a well behaving source, you can build a good\-for\-local\-use installable single Debian binary package easily with one command.  Test install of such a package generated in this way offers a good alternative to the traditional \(lq\fBmake install\fP\(rq command installing into the \fB/usr/local\fP directory since the Debian package can be  removed  cleanly  by  the \(lq\fBdpkg \-P\fP \*(Aq...\*(Aq\(rq command. Here are some examples of how to build such test packages. (These should work in most cases.  If the \fB\-d\fP option does not work, try the \fB\-t\fP option instead.)
+For a well behaving source, you can build a good\-for\-local\-use installable single Debian binary package easily with one command.  Test install of such a package generated in this way offers a good alternative to the traditional \(lq\fBmake install\fP\(rq command installing into the \fB/usr/local\fP directory since the Debian package can be  removed  cleanly  by  the \(lq\fBdpkg \-P\fP \*(Aq...\*(Aq\(rq command. Here are some examples of how to build such test packages.
 .sp
 For a typical C program source tree packaged with \fBautoconf\fP/\fBautomake\fP:
 .sp
@@ -622,7 +570,7 @@ For a typical C program source tree packaged with \fBautoconf\fP/\fBautomake\fP:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBdebmake \-d \-i debuild\fP
+\fBdebmake \-i sbuild\fP
 .RE
 .sp
 For a typical Python (version 3) module source tree:
@@ -635,7 +583,7 @@ For a typical Python (version 3) module source tree:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBdebmake \-s \-d \-b":python3" \-i debuild\fP
+\fBdebmake \-b":python3" \-i sbuild\fP
 .RE
 .sp
 For a typical Python (version 3) module in the \fIpackage\-version\fP\fB.tar.gz\fP archive:
@@ -648,7 +596,7 @@ For a typical Python (version 3) module in the \fIpackage\-version\fP\fB.tar.gz\
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBdebmake \-s \-a\fP \fIpackage\-version\fP\fB.tar.gz \-b":python3" \-i debuild\fP
+\fBdebmake\fP  \fIpackage\-version\fP\fB.tar.gz \-b":python3" \-i sbuild\fP
 .RE
 .sp
 For a typical Perl module in the \fIpackage\-version\fP\fB.tar.gz\fP archive:
@@ -661,7 +609,7 @@ For a typical Perl module in the \fIpackage\-version\fP\fB.tar.gz\fP archive:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBdebmake \-a\fP \fIpackage\-version\fP\fB.tar.gz \-b":perl" \-i debuild\fP
+\fBdebmake\fP \fIpackage\-version\fP\fB.tar.gz \-b":perl" \-i sbuild\fP
 .RE
 .SH "HELPER PACKAGES"
 .sp
@@ -914,7 +862,7 @@ Use this feature as:
 .if n .RS 4
 .nf
 .fam C
- $ DEBUG=spd debmake ...
+ $ export DEBUG=spd; debmake ...
 .fam
 .fi
 .if n .RE
