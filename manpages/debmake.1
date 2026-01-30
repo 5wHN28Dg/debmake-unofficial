@@ -181,7 +181,7 @@ show this help message and exit
 .RE
 .sp
 \fB\-n\fP, \fB\-\-native\fP
-make a native source package without \fB.orig.tar.gz\fP
+make a native source package without \fB.orig.tar.xz\fP
 .sp
 \fB\-p\fP, \fB\-\-package package\fP
 .RS 4
@@ -586,7 +586,7 @@ For a typical Python (version 3) module source tree:
 \fBdebmake \-b":python3" \-i sbuild\fP
 .RE
 .sp
-For a typical Python (version 3) module in the \fIpackage\-version\fP\fB.tar.gz\fP archive:
+For a typical Python (version 3) module in the \fIpackage\-version\fP\fB.tar.xz\fP archive:
 .sp
 .RS 4
 .ie n \{\
@@ -596,10 +596,10 @@ For a typical Python (version 3) module in the \fIpackage\-version\fP\fB.tar.gz\
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBdebmake\fP  \fIpackage\-version\fP\fB.tar.gz \-b":python3" \-i sbuild\fP
+\fBdebmake\fP  \fIpackage\-version\fP\fB.tar.xz \-b":python3" \-i sbuild\fP
 .RE
 .sp
-For a typical Perl module in the \fIpackage\-version\fP\fB.tar.gz\fP archive:
+For a typical Perl module in the \fIpackage\-version\fP\fB.tar.xz\fP archive:
 .sp
 .RS 4
 .ie n \{\
@@ -609,7 +609,7 @@ For a typical Perl module in the \fIpackage\-version\fP\fB.tar.gz\fP archive:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fBdebmake\fP \fIpackage\-version\fP\fB.tar.gz \-b":perl" \-i sbuild\fP
+\fBdebmake\fP \fIpackage\-version\fP\fB.tar.xz \-b":perl" \-i sbuild\fP
 .RE
 .SH "HELPER PACKAGES"
 .sp
