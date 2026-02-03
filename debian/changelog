@@ -1,3 +1,11 @@
+debmake (5.1.1) unstable; urgency=medium
+
+  * Fix typo in manpage
+  * demote d/s/local-options and d/s/local-patch-header
+  * Set fall back value to para["option_z"] (Closes: #1126868)
+
+ -- Osamu Aoki <osamu@debian.org>  Tue, 03 Feb 2026 12:10:05 +0900
+
 debmake (5.1.0) unstable; urgency=medium
 
   * Simplification of CLI (drop -a/-d/-c/-j/-t/-T/ ... options)
