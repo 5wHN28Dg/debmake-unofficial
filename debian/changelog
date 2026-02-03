@@ -1,3 +1,10 @@
+debmake (5.1.2) unstable; urgency=medium
+
+  * Add sanity check
+  * Bump hard coded version to 5.1.2
+
+ -- Osamu Aoki <osamu@debian.org>  Tue, 03 Feb 2026 08:15:05 +0000
+
 debmake (5.1.1) unstable; urgency=medium
 
   * Fix typo in manpage
