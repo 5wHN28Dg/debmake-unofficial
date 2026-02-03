@@ -272,8 +272,6 @@ def debian(para):
         )
         debmake.sed.sed("extra2source_*", "debian/source/", substlist, "", para)
         if not para["native"]:
-            # source/local-options.ex
-            # source/local-patch-header.ex
             # source/options.ex
             # source/patch-header.ex
             # source/lintian-overrides.ex
@@ -302,6 +300,17 @@ def debian(para):
             "",
             para,
         )
+        debmake.sed.sed("extra2source_*", "debian/source/", substlist, "", para)
+        if not para["native"]:
+            # source/local-options.ex
+            # source/local-patch-header.ex
+            debmake.sed.sed(
+                "extra2source.nn_*",
+                "debian/source/",
+                substlist,
+                "",
+                para,
+            )
     ###################################################################
     # generate desirable configuration files, if missing (extra=1-4).
     #  - loop over binary packages
