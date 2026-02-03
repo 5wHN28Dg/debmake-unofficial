@@ -8,8 +8,9 @@
 
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 override_dh_auto_clean:
-	# rudimentary syntax check
-	for f in src/debmake/*.py ; do echo " ... testing $$f" ; python3 -m py_compile $$f || exit 1; done
+	# rudimentary code check before doing anything
+	debian/sanity.sh
+	# normal dh_auto_clean
 	dh_auto_clean -O--buildsystem=pybuild
 endif
 

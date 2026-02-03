@@ -444,7 +444,7 @@ Arguments to -b, -f, and -w options need to be quoted to protect them from the s
     elif para["url_pre"] == "git://":
         para["method"] = "dir_git"
     else:
-        if para["url_ext"] =="":
+        if para["url_ext"] == "":
             para["method"] = "dir_debmake"
         elif para["url_tail"] != "":
             para["method"] = ""
@@ -508,9 +508,7 @@ Arguments to -b, -f, and -w options need to be quoted to protect them from the s
         para["option_z"] = "--bzip2"
     else:
         print(
-            'E: invalid -z option set for debmake: -z "{}"'.format(
-                para["url"]
-            ),
+            'E: invalid -z option set for debmake: -z "{}"'.format(para["url"]),
             file=sys.stderr,
         )
         debmake.debug.debug(" >>> mid-para ERROR for -z option", type="p", para=para)
