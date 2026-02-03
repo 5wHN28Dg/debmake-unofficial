@@ -412,7 +412,6 @@ Arguments to -b, -f, and -w options need to be quoted to protect them from the s
     #  para["method"] == "" --> Stop debmake
     #######################################################################
     para["method"] = ""
-    para["option_z"] = ""
     m = re_url.match(para["url"])
     if m is not None:
         para["url_flag"] = True
@@ -434,57 +433,41 @@ Arguments to -b, -f, and -w options need to be quoted to protect them from the s
         para["url_ver"] = ""
         para["url_ext"] = ""
         para["url_tail"] = ""
-    # check if tarball URL/PATH
-    if not para["url_flag"]:
-        para["option_z"] = ""
-    elif para["url_tail"] != "":
-        # No URL PATH with tailing for tarball
-        para["option_z"] = ""
-    elif para["url_ext"] in [".orig.tar.xz", ".tar.xz", ".txz"]:
-        para["option_z"] = "--xz"
-    elif para["url_ext"] in [".orig.tar.gz", ".tar.gz", ".tgz"]:
-        para["option_z"] = "--gzip"
-    elif para["url_ext"] in [".orig.tar.bz2", ".tar.bz2", ".tbz", ".tb2", ".tbz2"]:
-        para["option_z"] = "--bzip2"
-    else:
-        para["option_z"] = ""
-    #
     if not para["url_flag"]:
         para["method"] = ""
     elif para["url_pre"] in ["http://", "https://", "ftp://"]:
         # remote URL (non- git://)
-        if para["option_z"]:
-            para["method"] = "tar_wget"
-        elif para["url_ext"] == ".git" or para["url_user"] == "git@":
+        if para["url_ext"] == ".git" or para["url_user"] == "git@":
             para["method"] = "dir_git"
         else:
-            para["method"] = ""
-    elif para["url_pre"] in ["git://"]:
+            para["method"] = "tar_wget"
+    elif para["url_pre"] == "git://":
         para["method"] = "dir_git"
-    elif para["url_pre"] in [""]:
-        if para["option_z"]:
-            para["method"] = "tar_copy"
-        else:
-            para["method"] = "dir_debmake"
     else:
-        para["method"] = ""
-    #
-    if para["option_z"]:
-        if (
-            para["url_ext"] in [".orig.tar.xz", ".orig.tar.gz", ".orig.tar.bz2"]
-            and para["url_ver"][:1] == "_"
-        ):
+        if para["url_ext"] =="":
+            para["method"] = "dir_debmake"
+        elif para["url_tail"] != "":
+            para["method"] = ""
+        elif para["url_ext"] in [".orig.tar.xz", ".tar.xz", ".txz"]:
+            para["method"] = "tar_copy"
+            para["tarz"] = para["url_ext"][1:]
+        elif para["url_ext"] in [".orig.tar.gz", ".tar.gz", ".tgz"]:
+            para["method"] = "tar_copy"
+            para["tarz"] = para["url_ext"][1:]
+        elif para["url_ext"] in [".orig.tar.bz2", ".tar.bz2", ".tbz", ".tb2", ".tbz2"]:
+            para["method"] = "tar_copy"
+            para["tarz"] = para["url_ext"][1:]
+        else:
+            para["method"] = ""
+    # extra sanity check for package_version.orig.tar.*
+    if para["url_ext"] in [".orig.tar.xz", ".orig.tar.gz", ".orig.tar.bz2"]:
+        if para["url_ver"][:1] == "_":
             # package_version.orig.tar.xz
             pass
-        elif para["option_z"] and para["url_ver"][:1] == "-":
-            # package-version.tar.xz
-            pass
-        elif para["option_z"] and para["url_ver"] == "":
-            # package.tar.xz
-            pass
         else:
             para["method"] = ""
-    #
+    else:
+        pass
     #######################################################################
     if para["method"] == "":
         print(
@@ -494,26 +477,45 @@ Arguments to -b, -f, and -w options need to be quoted to protect them from the s
             file=sys.stderr,
         )
         print("I: consider executing debmake in the manually generated source tree.")
-        debmake.debug.debug(" >>> mid-para ERROR unmatch", type="p", para=para)
+        debmake.debug.debug(" >>> mid-para ERROR for URL", type="p", para=para)
         exit(1)
+    #######################################################################
+    # set legal fall back values
     #######################################################################
     if para["package"] == "":
         if para["url_pkg"]:
             para["package"] = para["url_pkg"].lower()
         else:
             para["package"] = "packagename"
+    #
     if para["version"] == "":
         if para["url_ver"][1:]:
             para["version"] = para["url_ver"][1:].lower()
         else:
             para["version"] = "1.0"
-    if para["tarz"] == "":
-        if para["url_ext"][1:]:
-            para["tarz"] = para["url_ext"][1:]
-        else:
-            para["tarz"] = "tar.xz"
+    #
     if para["revision"] == "":
         para["revision"] = "1"
+    # fall back for para["method"] == "dir_*" w/o explicit -z
+    if para["tarz"] == "":
+        para["tarz"] = "tar.xz"
+    # set option fmatching for file extension
+    if para["tarz"] in ["orig.tar.xz", "tar.xz", "txz"]:
+        para["option_z"] = "--xz"
+    elif para["tarz"] in ["orig.tar.gz", "tar.gz", "tgz"]:
+        para["option_z"] = "--gzip"
+    elif para["tarz"] in ["orig.tar.bz2", "tar.bz2", "tbz", "tb2", "tbz2"]:
+        para["option_z"] = "--bzip2"
+    else:
+        print(
+            'E: invalid -z option set for debmake: -z "{}"'.format(
+                para["url"]
+            ),
+            file=sys.stderr,
+        )
+        debmake.debug.debug(" >>> mid-para ERROR for -z option", type="p", para=para)
+        exit(1)
+
     #######################################################################
     para["section"] = "unknown"
     para["priority"] = "optional"
