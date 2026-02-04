@@ -53,9 +53,9 @@ def dir_debmake(para):
             )
         # copy from para["source_dir"]/. to para["debmake_dir"] (with debian/* data)
         if para["verbose"]:
-            command = "rsync -av "
+            command = "cp -dRv "
         else:
-            command = "rsync -a "
+            command = "cp -dR "
         command += para["base_dir"] + "/" + para["source_dir"] + "/. "
         command += para["debmake_dir"]
         debmake.sh.sh(command)

@@ -21,7 +21,6 @@ Depends:
  devscripts,
  licensecheck,
  python3-debian,
- rsync,
  ${misc:Depends},
  ${python3:Depends},
 Recommends:

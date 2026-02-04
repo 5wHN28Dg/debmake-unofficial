@@ -2,12 +2,12 @@
 .\"     Title: debmake
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.23
-.\"      Date: 2026-01-29
+.\"      Date: 2026-02-08
 .\"    Manual: Debmake Manual
 .\"    Source: DEBMAKE
 .\"  Language: English
 .\"
-.TH "DEBMAKE" "1" "2026-01-29" "DEBMAKE" "Debmake Manual"
+.TH "DEBMAKE" "1" "2026-02-08" "DEBMAKE" "Debmake Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -32,8 +32,8 @@ debmake \- program to make a Debian source package
 .SH "SYNOPSIS"
 .sp
 \fBdebmake\fP [\fB\-h\fP] [\fB\-n\fP] [\fB\-p\fP \fIpackage\fP] [\fB\-u\fP \fIversion\fP] [\fB\-r\fP \fIrevision\fP]
-[\fB\-z\fP \fIextension\fP] [\fB\-b\fP "\fIbinarypackage\fP\fI[:type], ...\fP]" [\fB\-e\fP \fIfoo@example.org\fP]
-[\fB\-f\fP "\fIfirstname lastname\fP"]
+[\fB\-z\fP \fIextension\fP] [\fB\-b\fP "\fIbinarypackage\fP\fI[:type], ...\fP]"
+[\fB\-D\fP \fIvalue\fP] [\fB\-e\fP \fIfoo@example.org\fP] [\fB\-f\fP "\fIfirstname lastname\fP"]
 [\fB\-i\fP [\fBdebuild\fP|\fBsbuild\fP|\fBdgit sbuild\fP|\fBgbp buildpackage\fP|\fBdpkg\-buildpackage\fP| ...]]
 [\fB\-m\fP] [\fB\-q\fP] [\fB\-v\fP] [\fB\-V\fP] [\fB\-w\fP \fI"addon, ..."\fP] [\fB\-x\fP [01234]] [\fB\-y\fP] [\fB\-B\fP]
 [\fIURL\fP]
@@ -171,7 +171,7 @@ your workflow.  For example, \fBorigtargz\fP, \fBmk\-origtargz\fP, \fBgit\-debor
 .sp
 \fIURL\fP
 .RS 4
-aquire the source tree from the tarball, the git repository or the source tree at this \fIURL\fP (or \fIPATH\fP) (if missing, the source tree uses the current directory)
+acquire the source tree from the tarball, the git repository or the source tree at this \fIURL\fP (or \fIPATH\fP) (if missing, the source tree uses the current directory)
 .RE
 .SH "OPTIONS"
 .sp
@@ -190,17 +190,17 @@ set the Debian package name
 .sp
 \fB\-u\fP, \fB\-\-upstreamversion\fP \fIversion\fP
 .RS 4
-set the upstream package version
+set the upstream package version ("\fB@\fP" in \fIversion\fP is replaced by "\fB0~yymmddHHMM\fP" timestamp)
 .RE
 .sp
 \fB\-r\fP, \fB\-\-revision\fP \fIrevision\fP
 .RS 4
-set the Debian package revision
+set the Debian package revision ("\fB@\fP" in \fIrevision\fP is replaced by "\fB0~yymmddHHMM\fP" timestamp)
 .RE
 .sp
 \fB\-z\fP, \fB\-\-tarz\fP \fIextension\fP
 .RS 4
-set the tarball compression type, \fIextension\fP=(\fBtar.xz\fP|\fBtar.gz\fP|\fBtar.bz2\fP) (alias: \fBz\fP, \fBb\fP, \fBx\fP)
+set the tarball compression type for the missing upstream tarball, \fIextension\fP=(\fBtar.xz\fP|\fBtar.gz\fP|\fBtar.bz2\fP) (alias: \fBz\fP, \fBb\fP, \fBx\fP)
 .RE
 .sp
 \fB\-b\fP, \fB\-\-binaryspec\fP \fI"binarypackage[:type], ..."\fP
@@ -439,6 +439,11 @@ If the source tree contents do not match settings for \fItype\fP, the \fBdebmake
 set e\-mail address
 .sp
 The default is taken from the value of the environment variable \fB$DEBEMAIL\fP.
+.RE
+.sp
+\fB\-D\fP, \fB\-\-debug\fP \fIvalue\fP
+.RS 4
+set \fBDEBUG\fP environment variable to \fIvalue\fP for debug logging (substring of "\fBspPd\fP", use "\fB_\fP" to unset \fBDEBUG\fP)
 .RE
 .sp
 \fB\-f\fP, \fB\-\-fullname\fP \fI"firstname lastname"\fP
@@ -862,7 +867,17 @@ Use this feature as:
 .if n .RS 4
 .nf
 .fam C
- $ export DEBUG=spd; debmake ...
+[base_dir] $ export DEBUG=spd; debmake ...
+.fam
+.fi
+.if n .RE
+.sp
+or
+.sp
+.if n .RS 4
+.nf
+.fam C
+[base_dir] $ debmake \-D spd ...
 .fam
 .fi
 .if n .RE

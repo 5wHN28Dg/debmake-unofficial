@@ -24,6 +24,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import argparse
+import datetime
 import os
 import pwd
 import re
@@ -129,7 +130,7 @@ Arguments to -b, -f, and -w options need to be quoted to protect them from the s
         "--upstreamversion",
         action="store",
         default="",
-        help="set the upstream package version",
+        help='set the upstream package version ("@" in version is replaced by "0~yymmddHHMM" timestamp)',
         metavar="version",
     )
     p.add_argument(
@@ -137,7 +138,7 @@ Arguments to -b, -f, and -w options need to be quoted to protect them from the s
         "--revision",
         action="store",
         default="",
-        help="set the Debian package revision",
+        help='set the Debian package revision ("@" in revision is replaced by "0~yymmddHHMM" timestamp)',
         metavar="revision",
     )
     p.add_argument(
@@ -145,7 +146,7 @@ Arguments to -b, -f, and -w options need to be quoted to protect them from the s
         "--tarz",
         action="store",
         default="",
-        help="set the tarball compression type, extension=(tar.xz|tar.gz|tar.bz2)",
+        help="set the tarball compression type for the missing upstream tarball, extension=(tar.xz|tar.gz|tar.bz2)",
         metavar="extension",
     )
     p.add_argument(
@@ -155,6 +156,14 @@ Arguments to -b, -f, and -w options need to be quoted to protect them from the s
         default="",
         help='set binary package specs as comma separated list of "binarypackage":"type" pairs, e.g., in full form "foo:bin,foo-doc:doc,libfoo1:lib,libfoo-dev:dev" or in short form ",-doc,libfoo1, libfoo-dev".  Here, "binarypackage" is the binary package name; and optional "type" is chosen from "bin", "data", "dev", "doc", "lib", "perl", "python3", "ruby", and "script". If "type" is not specified but obvious, it is set by "binarypackage".  Otherwise it is set to "bin" for the compiled ELF binary.',
         metavar='"binarypackage[:type], ..."',
+    )
+    p.add_argument(
+        "-D",
+        "--debug",
+        action="store",
+        default="",
+        help='set DEBUG environment variable to <value> for debug logging (substring of "spPd",  use "_" to unset DEBUG)',
+        metavar="<value>",
     )
     p.add_argument(
         "-e",
@@ -345,6 +354,13 @@ Arguments to -b, -f, and -w options need to be quoted to protect them from the s
         os.chdir("..")
         para["base_dir"] = os.path.abspath(".")
     para["binaryspec"] = args.binaryspec  # -b
+    debug = args.debug  # -d
+    if debug:
+        if "_" in debug:
+            # ignore DEBUG environment
+            os.environ["DEBUG"] = ""
+        else:
+            os.environ["DEBUG"] = debug
     para["email"] = args.email  # -e
     if para["email"]:
         pass
@@ -496,6 +512,15 @@ Arguments to -b, -f, and -w options need to be quoted to protect them from the s
     #
     if para["revision"] == "":
         para["revision"] = "1"
+    # timestamp shorthand string
+    timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%y%m%d%H%M")
+    timestamp0 = "0~" + timestamp
+    # for convenient native WIP version string: @: documented, #: hidden
+    para["version"] = para["version"].replace("#", timestamp)
+    para["version"] = para["version"].replace("@", timestamp0)
+    # for convenient non-native WIP revision string
+    para["revision"] = para["revision"].replace("#", timestamp)
+    para["revision"] = para["revision"].replace("@", timestamp0)
     # fall back for para["method"] == "dir_*" w/o explicit -z
     if para["tarz"] == "":
         para["tarz"] = "tar.xz"
