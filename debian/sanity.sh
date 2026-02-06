@@ -2,7 +2,7 @@
 # Sanity check of source tree
 for f in src/debmake/*.py ;
   do
-    echo " ... testing $f for python syntaz"
+    echo " ... testing $f for python syntax"
     python3 -m py_compile $f || exit 1
   done
 # Checking hardcoded versions
