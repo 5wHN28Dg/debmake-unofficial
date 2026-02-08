@@ -29,7 +29,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 __debian_policy__ = "4.7.3"  # debian policy version
 __debian_compat__ = "13"  # debian/control Build-Depends: debhelper-compat (= 13)
 __programname__ = "debmake"
-__version__ = "5.1.2"
+__version__ = "5.1.3"
 __copyright__ = "Copyright © 2014-2026 Osamu Aoki <osamu@debian.org>"
 __license__ = """\
 Permission is hereby granted, free of charge, to any person obtaining a

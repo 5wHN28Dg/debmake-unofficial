@@ -81,7 +81,7 @@ The author thanks previous efforts on this topic (GPL):
   * 1998-2012 Craig Small <csmall@debian.org>
     (This is active project in 2021.  Around 2016, dh-make was ported to
      python code base with major updates.)
-* Since version 5.0.0 in 2026 of debmake, license check functionality is deligated to licensecheck
+* Since version 5.0.0 in 2026 of debmake, license check functionality is delegated to licensecheck
 
 ## How to install
 
@@ -110,16 +110,17 @@ in the virtual environment.  For example.
 
 ## How to update as upstream before release
 
-1. Update `src/debmake/__init__.py` with new upstream version `4.1.2`
+1. Update `src/debmake/__init__.py` with new upstream version `5.1.3`
 2. Add a new entry to the debian/changelog with the new upstream version
-   ("`dch -i`" creates entry such as `4.1.1-2` --> change to `4.1.2-1`)
+   ("`dch -i`" creates entry such as `5.1.2` --> change to `5.1.3`)
 3. When debmake command line interface changes:
-      * update debmake-doc package
-      * generate a new `debmake.1` file in its source
+      * Check the latest CLI using "`debmake -h`"
+      * update asciidoc/manpage.txt in debmake-doc package
+      * generate a new `debmake.1` file in its source wuth "`make debmake.1`"
       * copy generated `debmake.1` file into `manpages/debmake.1`
-4. Tag it with upstream version `4.1.2` and build with
+4. Tag it with upstream version `upstream/5.1.3` and build with
 ```
-        $ git tag -s 4.1.2
+        $ git tag -s 5.1.3
         $ git deborig
 	$ sbuild
 ```
