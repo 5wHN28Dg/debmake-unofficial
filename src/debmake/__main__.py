@@ -167,6 +167,7 @@ def main():
     # Make Debian package(s)
     #######################################################################
     if para["invoke"]:
+        # This is safe string
         print("I: invoke dbuild/sbuild equivalents")
         debmake.sh.sh(para["invoke"])
     #######################################################################

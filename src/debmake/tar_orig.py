@@ -49,7 +49,7 @@ def tar_orig(para):
             ),
         )
     else:
-        command = "ln -sf " + para["tarball"] + " " + origtargz
+        command = "ln -sf '" + para["tarball"] + "' '" + origtargz + "'"
         debmake.sh.sh(command)
     return
 

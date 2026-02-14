@@ -48,7 +48,7 @@ def dir_debmake(para):
         if os.path.isdir(para["debmake_dir"]):
             debmake.yn.yn(
                 'remove the old versioned directory "{}"'.format(para["debmake_dir"]),
-                "rm -rf " + para["debmake_dir"],
+                "rm -rf '" + para["debmake_dir"] + "'",
                 para["yes"],
             )
         # copy from para["source_dir"]/. to para["debmake_dir"] (with debian/* data)
@@ -56,8 +56,8 @@ def dir_debmake(para):
             command = "cp -dRv "
         else:
             command = "cp -dR "
-        command += para["base_dir"] + "/" + para["source_dir"] + "/. "
-        command += para["debmake_dir"]
+        command += "'" + para["base_dir"] + "/" + para["source_dir"] + "/.' '"
+        command += para["debmake_dir"] + "'"
         debmake.sh.sh(command)
     return
 

@@ -58,22 +58,22 @@ def tar_expand(para):
         )
         exit(1)
     if os.path.isdir(para["source_dir"]):
-        command = "rm -rf " + para["source_dir"]
+        command = "rm -rf '" + para["source_dir"] + "'"
         debmake.sh.sh(command)
     if os.path.isdir(para["debmake_dir"]):
         debmake.yn.yn(
             'remove old "{}" directory'.format(para["debmake_dir"]),
-            "rm -rf " + para["debmake_dir"],
+            "rm -rf '" + para["debmake_dir"] + "'",
             para["yes"],
         )
-    command = "mkdir -p " + para["source_dir"]
+    command = "mkdir -p '" + para["source_dir"] + "'"
     debmake.sh.sh(command)
     if para["verbose"]:
-        command = "tar --verbose"
+        command = "tar --verbose "
     else:
         command = "tar "
-    command += para["option_z"] + " -f " + para["tarball"]
-    command += " -C " + para["source_dir"] + " -x"
+    command += para["option_z"] + " -f '" + para["tarball"] + "' "
+    command += "-C '" + para["source_dir"] + "' -x"
     debmake.sh.sh(command)
     print("I: expanded {}.".format(para["tarball"]))
     expand_list = glob.glob(para["source_dir"] + "/*")
@@ -81,14 +81,14 @@ def tar_expand(para):
     if len(expand_list) == 1 and len(expand_dir_list) == 1:
         # only one directory found (likely package-version/)
         # move expand_dir_list[0] to para["debmake_dir"]
-        command = "mv -f " + expand_dir_list[0] + " " + para["debmake_dir"]
+        command = "mv -f '" + expand_dir_list[0] + "' '" + para["debmake_dir"] + "'"
         debmake.sh.sh(command)
-        command = "rm -rf " + para["source_dir"]
+        command = "rm -rf '" + para["source_dir"] + "'"
         debmake.sh.sh(command)
     else:
         # root of archive have many files
         # move para["source_dir"] to para["debmake_dir"]
-        command = "mv -f " + para["source_dir"] + para["debmake_dir"]
+        command = "mv -f '" + para["source_dir"] + "' '" + para["debmake_dir"] + "'"
         debmake.sh.sh(command)
     return
 

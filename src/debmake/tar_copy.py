@@ -33,7 +33,7 @@ import debmake.sh
 # get upstream source to the current directory
 def tar_copy(para):
     if para["tarball"] != para["url"]:
-        command = "cp -f " + para["url"] + " " + para["tarball"]
+        command = "cp -f '" + para["url"] + "' '" + para["tarball"] + "'"
         debmake.sh.sh(command)
     return
 

@@ -42,9 +42,8 @@ def tar_wget(para):
         print("E: please install wget or curl.", file=sys.stderr)
         exit(1)
     if para["verbose"]:
-        command += "--verbose " + para["url"]
-    else:
-        command += para["url"]
+        command += "--verbose "
+    command += "'" + para["url"] + "'"
     debmake.sh.sh(command)
     return
 

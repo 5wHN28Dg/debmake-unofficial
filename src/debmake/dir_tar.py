@@ -53,13 +53,13 @@ def dir_tar(para):
         else:
             command = "tar "
         command += (
-            "--exclude "
+            "--exclude '"
             + para["debmake_dir"]
-            + "/debian"
-            + " --anchored --exclude-vcs "
+            + "/debian' "
+            + "--anchored --exclude-vcs "
             + para["option_z"]
         )
-        command += " -cvf " + para["tarball"] + " " + para["debmake_dir"]
+        command += " -cvf '" + para["tarball"] + "' '" + para["debmake_dir"] + "'"
         debmake.sh.sh(command)
     return
 

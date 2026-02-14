@@ -45,14 +45,14 @@ def dir_git(para):
         exit(1)
     if not os.path.exists(para["source_dir"]):
         print('I: checked out to "{}"'.format(para["source_dir"]), file=sys.stderr)
-        command = "git clone " + para["url"]
+        command = "git clone '" + para["url"] + "'"
         debmake.sh.sh(command)
     elif os.path.exists(para["source_dir"] + "/.git/config"):
         print(
             'I: update the local work tree at "{}"'.format(para["source_dir"]),
             file=sys.stderr,
         )
-        command = "cd " + para["source_dir"] + " ; git pull ; cd -"
+        command = "cd '" + para["source_dir"] + "' ; git pull ; cd -"
         debmake.sh.sh(command)
     else:
         print(
