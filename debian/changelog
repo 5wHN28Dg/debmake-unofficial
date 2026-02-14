@@ -1,3 +1,9 @@
+debmake (5.1.5) unstable; urgency=medium
+
+  * Proof shell code for quotation (Closes: #1003106)
+
+ -- Osamu Aoki <osamu@debian.org>  Sat, 14 Feb 2026 13:07:12 +0900
+
 debmake (5.1.4) unstable; urgency=medium
 
   * Make version check script to allow building for CI test
