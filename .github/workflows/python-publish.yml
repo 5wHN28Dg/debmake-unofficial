@@ -3,14 +3,13 @@ name: Build, Release & publish
 on:
   push:
     tags:
-      - "debian/*"
-      - "upstream/*"
+      - "pypi/*"
   workflow_dispatch:
     inputs:
       ref:
-        description: "Git ref to publish (e.g. upstream/5.1.5)"
+        description: "Git ref to publish (e.g. pypi/5.1.5)"
         required: true
-        default: "debian/5.1.5"
+        default: "pypi/5.1.5"
 
 permissions:
   contents: write
@@ -40,8 +39,7 @@ jobs:
         run: |
           REF="${{ inputs.ref || github.ref_name }}"
           VERSION="$REF"
-          VERSION="${VERSION#upstream/}"
-          VERSION="${VERSION#debian/}"
+          VERSION="${VERSION#pypi/}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
