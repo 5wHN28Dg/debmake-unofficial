@@ -1,0 +1,46 @@
+name: Sync upstream tags
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "19 3 * * *"  # daily
+
+permissions:
+  contents: write
+
+jobs:
+  sync-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add upstream remote (Salsa) and fetch tags
+        run: |
+          git remote add upstream https://salsa.debian.org/debian/debmake.git || true
+          git fetch upstream --tags
+
+      - name: Mirror new upstream/* tags only
+        run: |
+          ORIGIN_TAGS=$(git ls-remote --tags origin | awk '{print $2}' | sed 's#refs/tags/##' | sed 's/\^{}//' | sort -u)
+          UPSTREAM_TAGS=$(git ls-remote --tags upstream | awk '{print $2}' | sed 's#refs/tags/##' | sed 's/\^{}//' | sort -u)
+
+          # keep only upstream/* tags
+          UPSTREAM_TAGS=$(echo "$UPSTREAM_TAGS" | grep '^upstream/' || true)
+
+          NEW_TAGS=$(comm -23 <(echo "$UPSTREAM_TAGS") <(echo "$ORIGIN_TAGS") || true)
+
+          if [ -z "$NEW_TAGS" ]; then
+            echo "No new upstream/* tags."
+            exit 0
+          fi
+
+          echo "New tags to mirror:"
+          echo "$NEW_TAGS"
+
+          while read -r tag; do
+            [ -z "$tag" ] && continue
+            git push origin "refs/tags/$tag:refs/tags/$tag"
+          done <<< "$NEW_TAGS"
