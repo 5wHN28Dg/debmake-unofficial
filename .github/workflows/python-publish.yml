@@ -3,13 +3,14 @@ name: Build, Release & publish
 on:
   push:
     tags:
+      - "debian/*"
       - "upstream/*"
   workflow_dispatch:
     inputs:
       ref:
         description: "Git ref to publish (e.g. upstream/5.1.5)"
         required: true
-        default: "upstream/4.5.1"
+        default: "debian/5.1.5"
 
 permissions:
   contents: write
@@ -38,8 +39,10 @@ jobs:
         id: vars
         run: |
           REF="${{ inputs.ref || github.ref_name }}"
-          VERSION="${REF#upstream/}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          VERSION="$REF"
+          VERSION="${VERSION#upstream/}"
+          VERSION="${VERSION#debian/}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
