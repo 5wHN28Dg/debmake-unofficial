@@ -8,12 +8,19 @@ This repository provides an **unofficial PyPI package** for [debmake](https://sa
 
 - This is **not the official upstream project**
 - Upstream is maintained by Debian developers
-- This repository exists only to make installation via `pip` easy
+- This repository exists only to make installation via `pip`, `pipx` and `uv` easy
 
 ## Installation
 
 ```bash
+# with pip
 pip install debmake-unofficial
+
+# with uv
+uv tool install debmake-unofficial@latest  # Install debmake globally.
+
+# with pipx
+pipx install debmake-unofficial
 ```
 ## Original README
 This is the new debmake program written in Python.  This provides convenient
