@@ -1,4 +1,4 @@
-name: Build & publish to PyPI
+name: Build, Release & publish
 
 on:
   push:
@@ -6,11 +6,11 @@ on:
       - "upstream/*"
 
 permissions:
-  contents: read
-  id-token: write  # required for PyPI Trusted Publishing (OIDC)
+  contents: write   # needed to create releases & upload assets
+  id-token: write   # needed for PyPI Trusted Publishing (OIDC)
 
 jobs:
-  build-and-publish:
+  build-release-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,12 +18,21 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.12"
 
       - name: Build sdist + wheel
         run: |
           python -m pip install -U pip build
           python -m build
 
-      - name: Publish to PyPI (Trusted Publishing)
+      # Create a GitHub Release for this tag and upload dist/*
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "debmake ${GITHUB_REF_NAME#upstream/} (unofficial)"
+          files: dist/*
+          generate_release_notes: true
+
+      # Publish to PyPI using Trusted Publishing (no token)
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
