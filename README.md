@@ -1,5 +1,21 @@
-# Debmake
+# debmake-unofficial
 
+> ⚠️ Unofficial PyPI distribution of debmake. See details below.
+
+This repository provides an **unofficial PyPI package** for [debmake](https://salsa.debian.org/debian/debmake), a Debian packaging tool.
+
+## Important
+
+- This is **not the official upstream project**
+- Upstream is maintained by Debian developers
+- This repository exists only to make installation via `pip` easy
+
+## Installation
+
+```bash
+pip install debmake-unofficial
+```
+## Original README
 This is the new debmake program written in Python.  This provides convenient
 command to make a Debian package from the upstream VCS/tarball/source-tree.
 
