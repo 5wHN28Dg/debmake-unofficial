@@ -28,7 +28,7 @@ jobs:
           UPSTREAM_TAGS=$(git ls-remote --tags upstream | awk '{print $2}' | sed 's#refs/tags/##' | sed 's/\^{}//' | sort -u)
 
           # keep only upstream/* tags
-          UPSTREAM_TAGS=$(echo "$UPSTREAM_TAGS" | grep '^upstream/' || true)
+          UPSTREAM_TAGS=$(echo "$UPSTREAM_TAGS" | grep '^debian/' || true)
 
           NEW_TAGS=$(comm -23 <(echo "$UPSTREAM_TAGS") <(echo "$ORIGIN_TAGS") || true)
 
