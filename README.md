@@ -1,5 +1,28 @@
-# Debmake
+# debmake-unofficial
 
+> ⚠️ Unofficial PyPI distribution of debmake.
+
+This repository provides an **unofficial PyPI package** for  
+[debmake](https://salsa.debian.org/debian/debmake), a Debian packaging tool.
+
+- Upstream project: https://salsa.debian.org/debian/debmake
+- Maintained by Debian developers
+- This repository exists only to provide **easy installation of the latest upstream releases via Python package managers**
+- This project is **not affiliated with or endorsed by the upstream maintainers or Debian**
+
+## Installation
+
+```bash
+# pip
+pip install debmake-unofficial
+
+# uv
+uv tool install debmake-unofficial    # Install debmake globally.
+
+# pipx
+pipx install debmake-unofficial
+```
+# Original README
 This is the new debmake program written in Python.  This provides convenient
 command to make a Debian package from the upstream VCS/tarball/source-tree.
 
@@ -191,4 +214,3 @@ How copyright files are scanned by debmake in normal usage?
 ```
 
 (PATH are relative to `src/`)
-

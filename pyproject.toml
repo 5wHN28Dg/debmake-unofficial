@@ -26,7 +26,7 @@ build-backend = "setuptools.build_meta"  # If not defined, then legacy behavior 
 # There are some restrictions on what makes a valid project name
 # specification here:
 # https://packaging.python.org/specifications/core-metadata/#name
-name = "debmake"  # REQUIRED, is the only field that cannot be marked as dynamic.
+name = "debmake-unofficial"  # REQUIRED, is the only field that cannot be marked as dynamic.
 
 # Versions should comply with PEP 440:
 # https://www.python.org/dev/peps/pep-0440/
@@ -81,7 +81,7 @@ authors = [
 # maintains the project, and a valid email address corresponding to the name
 # listed.
 maintainers = [
-  {name = "Osamu Aoki", email = "osamu@debian.org" },
+  {name = "5wHN28Dg", email = "5gk5g.sneezing010@simplelogin.com"},
 ]
 
 # Classifiers help users find your project by categorizing it.
@@ -108,6 +108,7 @@ classifiers = [
   "Programming Language :: Python :: 3 :: Only",
   # Others
   "Operating System :: POSIX :: Linux",
+  "Environment :: Console",
   "Natural Language :: English",
 ]
 
@@ -145,9 +146,10 @@ classifiers = [
 # maintainers, and where to support the project financially. The key is
 # what's used to render the link text on PyPI.
 [project.urls]
-"Homepage" = "https://salsa.debian.org/debian/debmake"
+"Upstream (Debian Salsa)" = "https://salsa.debian.org/debian/debmake"
 "Bug Reports" = "https://salsa.debian.org/debian/debmake/issues"
-"Source" = "https://salsa.debian.org/debian/debmake"
+"Unofficial PyPI Fork" = "https://github.com/5wHN28Dg/debmake-unofficial"
+"Issues (Unofficial)" = "https://github.com/5wHN28Dg/debmake-unofficial/issues"
 # "Funding" = "https://donate.pypi.org"
 # "Say Thanks!" = "http://saythanks.io/to/example"
 
