@@ -1,0 +1,54 @@
+name: Prepare pypi/* tags from debian/* tags
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "debian/*"
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch all tags
+        run: |
+          git fetch --tags --force
+
+      - name: Create missing pypi/* tag for this debian/* tag
+        run: |
+          DEB_TAG="${GITHUB_REF_NAME}"      # e.g. debian/5.1.6
+          VER="${DEB_TAG#debian/}"          # e.g. 5.1.6
+          PYPI_TAG="pypi/${VER}"
+
+          echo "Debian tag: $DEB_TAG"
+          echo "Target PyPI tag: $PYPI_TAG"
+
+          # If pypi tag already exists, do nothing
+          if git rev-parse -q --verify "refs/tags/${PYPI_TAG}" >/dev/null; then
+            echo "Tag ${PYPI_TAG} already exists. Nothing to do."
+            exit 0
+          fi
+
+          # Create temp branch at debian tag
+          git checkout -b "tmp/pypi-${VER}" "${DEB_TAG}"
+
+          # Merge overlay branch
+          git fetch origin overlay/debmake:refs/remotes/origin/overlay/debmake
+          git merge --no-ff --no-edit "origin/overlay/debmake"
+
+          # Tag and push
+          git tag "${PYPI_TAG}"
+          git push origin "${PYPI_TAG}"
